@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Python-Based Garden Simulator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #1e261c;
+            color: #f3f4f6;
+        }
+        .code-font { font-family: 'JetBrains Mono', monospace; }
+        .glass-panel {
+            background: rgba(40, 54, 35, 0.45);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(120, 143, 114, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        .locked {
+            opacity: 0.25;
+            pointer-events: none;
+            filter: blur(3px);
+            transition: all 0.4s ease;
+        }
+        .unlocked {
+            opacity: 1;
+            pointer-events: auto;
+            filter: blur(0);
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 flex flex-col justify-between overflow-x-hidden">
+    <header class="w-full max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 pb-2 border-b border-[#43533c]/40">
+        <div>
+            <div class="flex items-center gap-2">
+                <h1 class="text-2xl font-extrabold tracking-tight text-emerald-100">Python-Based Garden Simulator</h1>
+            </div>
+            <p class="text-xs text-emerald-300/80 font-medium">SDG 2, 13, 15</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <div class="glass-panel px-4 py-2 rounded-xl flex flex-col items-end">
+                <span class="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">DAY</span>
+                <span class="text-lg font-extrabold text-white" id="day-counter">1</span>
+            </div>
+            <div class="glass-panel px-4 py-2 rounded-xl flex flex-col items-end">
+                <span class="text-[10px] text-emerald-400 uppercase tracking-widest font-bold">SCORE</span>
+                <span class="text-lg font-extrabold text-emerald-300" id="stewardship-counter">0%</span>
+            </div>
+        </div>
+    </header>
+    <main class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 flex-grow">
+        <!-- LEFT: RESOURCES -->
+        <section id="resources-section" class="lg:col-span-3 glass-panel rounded-2xl p-4 locked">
+            <h2 class="text-base font-bold text-emerald-200 border-b border-[#43533c]/30 pb-2 mb-4 flex items-center gap-2">
+                <i data-lucide="database" class="w-4 h-4 text-emerald-400"></i> Resource Storage
+            </h2>
+            <div class="space-y-4">
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="flex items-center gap-1.5 text-blue-300">Water Reserves</span>
+                        <span id="water-text">200 / 200 L</span>
+                    </div>
+                    <div class="w-full bg-[#1b2219] h-2.5 rounded-full overflow-hidden">
+                        <div id="water-bar" class="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="flex items-center gap-1.5 text-emerald-300">Seed Inventory</span>
+                        <span id="seeds-text">90 / 100</span>
+                    </div>
+                    <div class="w-full bg-[#1b2219] h-2.5 rounded-full overflow-hidden">
+                        <div id="seeds-bar" class="bg-gradient-to-r from-emerald-500 to-lime-400 h-full rounded-full" style="width: 90%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="flex items-center gap-1.5 text-amber-300">Solar Energy</span>
+                        <span id="energy-text">110 / 120 Wh</span>
+                    </div>
+                    <div class="w-full bg-[#1b2219] h-2.5 rounded-full overflow-hidden">
+                        <div id="energy-bar" class="bg-gradient-to-r from-amber-500 to-yellow-300 h-full rounded-full" style="width: 91%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="flex items-center gap-1.5 text-rose-300">Community Hope</span>
+                        <span id="hope-text">65 / 100</span>
+                    </div>
+                    <div class="w-full bg-[#1b2219] h-2.5 rounded-full overflow-hidden">
+                        <div id="hope-bar" class="bg-gradient-to-r from-rose-500 to-pink-400 h-full rounded-full" style="width: 65%"></div>
+                    </div>
+                </div>
+                <div>
+                    <div class="flex justify-between text-xs font-semibold">
+                        <span class="flex items-center gap-1.5 text-yellow-200">Coins / Dues</span>
+                        <span id="coins-text" class="text-yellow-200">120 Coins</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTER -->
+        <section class="lg:col-span-6 flex flex-col gap-4">
+            <div class="flex bg-[#192218] p-1.5 rounded-xl border border-emerald-800/40 w-fit">
+                <button onclick="switchTab('game')" id="tab-game" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-[#283623] text-emerald-100">Interactive Sanctuary</button>
+                <button onclick="switchTab('code')" id="tab-code" class="px-4 py-1.5 rounded-lg text-xs font-bold text-emerald-400/80 hover:text-emerald-100">Student Code Editor</button>
+            </div>
+
+            <div id="view-game" class="glass-panel rounded-2xl p-6 min-h-[380px] locked">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Sanctuary Garden Grid</h2>
+                        <p class="text-xs text-emerald-300">Pick a seed, then click a soil tile to plant it.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-emerald-300">Seed Bag:</span>
+                        <select id="crop-selector" class="bg-[#1b2219] border border-emerald-700 text-emerald-100 text-sm rounded-xl px-3 py-2">
+                        </select>
+                    </div>
+                </div>
+                <div id="garden-grid" class="grid grid-cols-5 gap-3"></div>
+            </div>
+
+            <div id="view-code" class="glass-panel rounded-2xl p-6 flex flex-col flex-grow hidden">
+                <div class="flex items-center justify-between mb-3">
+                    <h2 class="font-bold flex items-center gap-2">
+                        <i data-lucide="code" class="w-5 h-5 text-emerald-400"></i> Student Code Editor (Lab)
+                    </h2>
+                    <div class="flex items-center gap-3">
+                        <span id="save-status" class="text-xs text-emerald-400/80"></span>
+                        <button onclick="resetTopic()" class="text-xs text-emerald-300 hover:text-white underline underline-offset-2">Reset topic</button>
+                    </div>
+                </div>
+                <select id="topic-selector" onchange="loadTopic()" class="w-full bg-[#1b2219] text-emerald-100 border border-emerald-700 rounded-xl p-3 mb-4 text-sm"></select>
+                <textarea id="code-editor" class="flex-1 min-h-[260px] resize-none bg-[#0a0f0a] text-emerald-100 border border-emerald-800 rounded-xl p-4 code-font text-sm font-medium leading-relaxed" spellcheck="false"></textarea>
+                <button onclick="runPythonCode()" class="mt-4 bg-emerald-600 hover:bg-emerald-500 py-3 rounded-xl font-bold text-white flex items-center justify-center gap-2">
+                    <i data-lucide="play" class="w-4 h-4"></i> Run Python Code
+                </button>
+                <div id="output-console" class="mt-4 bg-black/70 border border-emerald-900 rounded-xl p-4 text-xs min-h-[3rem] max-h-48 overflow-auto font-mono whitespace-pre-wrap"></div>
+            </div>
+        </section>
+
+        <!-- RIGHT PANEL -->
+        <section class="lg:col-span-3 flex flex-col gap-4">
+            <div id="climate-queue-panel" class="glass-panel rounded-2xl p-4 locked">
+                <h3 class="font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                    <i data-lucide="cloud-lightning" class="w-4 h-4"></i> Climate Queue (FIFO)
+                </h3>
+                <div id="climate-queue" class="space-y-3 text-sm"></div>
+            </div>
+            <div id="stack-panel" class="glass-panel rounded-2xl p-4 flex-1 flex flex-col locked">
+                <h3 class="font-bold text-emerald-400 mb-3 flex items-center gap-2">
+                    <i data-lucide="history" class="w-4 h-4"></i> Action History (Stack)
+                </h3>
+                <div id="action-stack" class="flex-1 space-y-2 text-sm overflow-auto"></div>
+                <button onclick="triggerUndo()" class="mt-4 w-full bg-[#2a3825] hover:bg-[#34462e] text-emerald-200 py-2.5 rounded-xl text-sm font-medium flex items-center justify-center gap-2 border border-emerald-800">
+                    <i data-lucide="undo-2" class="w-4 h-4"></i> Undo (Stack Pop)
+                </button>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ---------------------------------------------------------------
+        // Topics
+        // ---------------------------------------------------------------
+        const topicTemplates = {
+            1: { title: "Resource Storage and Seed Bag", code: `#insert code here` },
+            2: { title: "Action History (Stack)",        code: `#insert code here` },
+            3: { title: "Climate Queue (FIFO)",          code: `#insert code here` },
+            4: { title: "Dynamic Arrays, 2D Lists & Memory Structures", code: `#insert code here` },
+            5: { title: "Hierarchical Trees & Traversals",              code: `#insert code here` }
+        };
+
+        // ---------------------------------------------------------------
+        // Saved code (localStorage)
+        // ---------------------------------------------------------------
+        const CODE_KEY  = "savedDSACode";   // { "1": "...", "2": "...", ... }
+        const TOPIC_KEY = "savedDSATopic";  // last topic you were editing
+
+        function readSavedCode() {
+            try {
+                const parsed = JSON.parse(localStorage.getItem(CODE_KEY));
+                return parsed && typeof parsed === "object" ? parsed : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        let savedCode = readSavedCode();
+        let currentTopic = null;            // topic whose code is in the editor right now
+
+        function setSaveStatus(text, isError) {
+            const el = document.getElementById("save-status");
+            el.textContent = text;
+            el.className = "text-xs " + (isError ? "text-red-400" : "text-emerald-400/80");
+        }
+
+        // Writes the editor's text under the CURRENT topic's key.
+        function persistCode() {
+            if (currentTopic === null) return;
+            savedCode[currentTopic] = document.getElementById("code-editor").value;
+            try {
+                localStorage.setItem(CODE_KEY, JSON.stringify(savedCode));
+                setSaveStatus("Saved");
+            } catch (e) {
+                setSaveStatus("Could not save (browser storage blocked)", true);
+            }
+        }
+
+        // Runs on topic change AND on first load.
+        function loadTopic() {
+            persistCode();  // save the topic we are leaving (still in the editor)
+
+            const key = document.getElementById("topic-selector").value;
+            currentTopic = key;
+            document.getElementById("code-editor").value =
+                savedCode[key] ?? topicTemplates[key].code;
+            setSaveStatus("");
+            try { localStorage.setItem(TOPIC_KEY, key); } catch (e) {}
+        }
+
+        function resetTopic() {
+            if (!confirm("Discard your code for this topic and restore the template?")) return;
+            document.getElementById("code-editor").value = topicTemplates[currentTopic].code;
+            persistCode();
+        }
+
+        // ---------------------------------------------------------------
+        // State
+        // ---------------------------------------------------------------
+        let pyodideInstance = null;
+        let pyodidePromise = null;   // stops Pyodide loading twice
+        let gardenPlants = {};
+        let cropEmoji = {};   // crop name -> emoji, filled by addPlantsToDropdown
+        let actionStack = [];
+
+        // Python lists/dicts arrive as PyProxy objects. Convert to plain JS.
+        function toJS(value) {
+            if (value && typeof value.toJs === "function") {
+                return value.toJs({ dict_converter: Object.fromEntries });
+            }
+            return value;
+        }
+
+        // Plain-text console output (never inserted as HTML)
+        function appendConsole(text, colorClass) {
+            const el = document.getElementById("output-console");
+            const span = document.createElement("span");
+            if (colorClass) span.className = colorClass;
+            span.textContent = text;
+            el.appendChild(span);
+            el.scrollTop = el.scrollHeight;
+        }
+
+        function initPyodide() {
+            if (pyodidePromise) return pyodidePromise;
+
+            appendConsole("Loading Python...\n", "text-amber-400");
+            pyodidePromise = (async () => {
+                try {
+                    const py = await loadPyodide();
+                    py.globals.set("unlockFeature", unlockFeature);
+                    py.globals.set("showMessage", showMessage);
+                    py.globals.set("clearGarden", clearGarden);
+                    py.globals.set("addPlantToGrid", addPlantToGrid);
+                    py.globals.set("updateResources", updateResources);
+                    py.globals.set("addPlantsToDropdown", addPlantsToDropdown);
+                    py.globals.set("pushAction", pushAction);
+                    py.globals.set("updateClimateQueue", updateClimateQueue);
+
+                    // print() output and Python errors go to the on-page console
+                    py.setStdout({ batched: (line) => appendConsole(line + "\n") });
+                    py.setStderr({ batched: (line) => appendConsole(line + "\n", "text-red-400") });
+
+                    pyodideInstance = py;
+                    return py;
+                } catch (err) {
+                    pyodidePromise = null;  // allow a retry
+                    appendConsole(`Failed to load Python: ${err.message}\n`, "text-red-400");
+                    throw err;
+                }
+            })();
+            return pyodidePromise;
+        }
+
+        // ---------------------------------------------------------------
+        // UI bridges (called from Python)
+        // ---------------------------------------------------------------
+        function unlockFeature(feature) {
+            const ids = {
+                resources: "resources-section",
+                stack: "stack-panel",
+                queue: "climate-queue-panel",
+                grid: "view-game"
+            };
+            const el = document.getElementById(ids[feature]);
+            if (!el) return;
+            el.classList.remove("locked");
+            el.classList.add("unlocked");
+        }
+
+        function updateClimateQueue(events) {
+            const container = document.getElementById("climate-queue");
+            container.innerHTML = "";
+            const list = toJS(events);
+            if (!list) return;
+            list.forEach(event => {
+                const div = document.createElement("div");
+                div.className = "p-3 bg-amber-950/40 border border-amber-900 rounded-xl text-xs";
+                const label = document.createElement("div");
+                label.className = "font-bold text-amber-400";
+                label.textContent = String(event);
+                div.appendChild(label);
+                container.appendChild(div);
+            });
+        }
+
+        function addPlantToGrid(pos, name) {
+            gardenPlants[pos] = String(name);
+            renderGarden();
+        }
+
+        // Tiles are buttons. Clicking one calls your Python function
+        //   on_cell_click(pos, crop)   pos = 0-24 (row * 5 + col), crop = Seed Bag choice
+        function renderGarden() {
+          const grid = document.getElementById("garden-grid");
+          grid.innerHTML = "";
+          for (let i = 0; i < 25; i++) {
+            const name = gardenPlants[i];
+            const cell = document.createElement("button");
+            cell.type = "button";
+            cell.className = "aspect-square bg-[#2a3825] hover:bg-[#33452e] rounded-xl flex items-center justify-center text-3xl border border-emerald-800 cursor-pointer";
+            cell.textContent = name ? (cropEmoji[name] || "🌱") : "⬜";
+            cell.title = name ? name : "Empty soil. Click to plant";
+            cell.setAttribute("aria-label", name ? `Cell ${i}: ${name}` : `Cell ${i}: empty`);
+            cell.addEventListener("click", () => onCellClick(i));
+            grid.appendChild(cell);
+          }
+        }
+
+        async function onCellClick(pos) {
+          const handler = pyodideInstance ? pyodideInstance.globals.get("on_cell_click") : undefined;
+          if (!handler) {
+            showToast("Run your code first. It must define on_cell_click(pos, crop).");
+            return;
+          }
+          const crop = document.getElementById("crop-selector").value;
+          try {
+            await handler(pos, crop);
+          } catch (err) {
+            showToast("Python error in on_cell_click. See the console on the code tab.");
+            appendConsole(`Error in on_cell_click: ${err.message}\n`, "text-red-400");
+          } finally {
+            if (handler.destroy) handler.destroy();
+          }
+        }
+
+        // showMessage(text): shows a short message on screen (works on any tab)
+        function showMessage(text) {
+          showToast(String(text));
+        }
+
+        // clearGarden(): empties the grid. Call it at the start of your setup code.
+        function clearGarden() {
+          gardenPlants = {};
+          renderGarden();
+        }
+
+        // updateResources(water, seeds, energy, hope, coins)
+        // or updateResources({"water": n, ...}). A real 0 stays 0.
+        function updateResources(water = 200, seeds = 90, energy = 110, hope = 65, coins = 120) {
+            const first = toJS(water);
+            if (Array.isArray(first)) {
+                [water, seeds, energy, hope, coins] = first;
+            } else if (first !== null && typeof first === "object") {
+                water  = first.water  ?? 200;
+                seeds  = first.seeds  ?? 90;
+                energy = first.energy ?? 110;
+                hope   = first.hope   ?? 65;
+                coins  = first.coins  ?? 120;
+            }
+            const pct = (v, max) => `${Math.min(100, Math.max(0, (v / max) * 100))}%`;
+
+            document.getElementById("water-text").innerText = `${water} / 200 L`;
+            document.getElementById("water-bar").style.width = pct(water, 200);
+            document.getElementById("seeds-text").innerText = `${seeds} / 100`;
+            document.getElementById("seeds-bar").style.width = pct(seeds, 100);
+            document.getElementById("energy-text").innerText = `${energy} / 120 Wh`;
+            document.getElementById("energy-bar").style.width = pct(energy, 120);
+            document.getElementById("hope-text").innerText = `${hope} / 100`;
+            document.getElementById("hope-bar").style.width = pct(hope, 100);
+            document.getElementById("coins-text").innerText = `${coins} Coins`;
+        }
+
+        function addPlantsToDropdown(plants) {
+            const select = document.getElementById("crop-selector");
+            select.innerHTML = "";
+            const list = toJS(plants);
+            if (!list) return;
+            list.forEach(([name, emoji, cost]) => {
+                cropEmoji[name] = emoji;
+                const option = document.createElement("option");
+                option.value = name;
+                option.textContent = `${emoji} ${name} (${cost}c)`;
+                select.appendChild(option);
+            });
+        }
+
+        function pushAction(action) {
+            actionStack.push(String(action));
+            if (actionStack.length > 8) actionStack.shift();
+            renderActionStack();
+        }
+
+        function renderActionStack() {
+            const container = document.getElementById("action-stack");
+            container.innerHTML = "";
+            [...actionStack].reverse().forEach(act => {
+                const div = document.createElement("div");
+                div.className = "bg-emerald-950/60 border-l-2 border-amber-500 px-3 py-2 rounded text-xs text-emerald-100";
+                div.textContent = `→ ${act}`;
+                container.appendChild(div);
+            });
+        }
+
+        function triggerUndo() {
+            if (actionStack.length > 0) {
+                const undone = actionStack.pop();
+                renderActionStack();
+                showToast(`Undid: ${undone}`);
+            } else {
+                showToast("Stack is empty.");
+            }
+        }
+
+        function renderClimateQueue() {
+            const container = document.getElementById("climate-queue");
+            container.innerHTML = `
+                <div class="p-3 bg-amber-950/40 border border-amber-900 rounded-xl text-xs">
+                    <div class="font-bold text-amber-400">Drought</div>
+                    <div class="text-emerald-300/80">Waiting in FIFO Queue</div>
+                </div>
+            `;
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement("div");
+            toast.className = "fixed bottom-6 right-6 bg-emerald-900 border border-emerald-400 text-white px-5 py-3 rounded-2xl shadow-2xl z-50 text-sm";
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        // ---------------------------------------------------------------
+        // Run
+        // ---------------------------------------------------------------
+        async function runPythonCode() {
+            persistCode();
+
+            const consoleEl = document.getElementById("output-console");
+            consoleEl.textContent = "";
+
+            let py;
+            try {
+                py = await initPyodide();
+            } catch (err) {
+                return; // initPyodide already printed the error
+            }
+
+            const code = document.getElementById("code-editor").value.trim();
+            const key = parseInt(document.getElementById("topic-selector").value);
+
+            appendConsole("Running...\n", "text-amber-400");
+            try {
+                await py.runPythonAsync(code);
+                appendConsole("Done.\n", "text-emerald-400");
+
+                if (key === 1 && code.includes("addPlantsToDropdown")) {
+                    unlockFeature("resources");
+                    pushAction("Resources & Seed Bag Initialized");
+                }
+                if (key === 2 && code.includes("ActionHistoryStack")) {
+                    unlockFeature("stack");
+                }
+                if (key === 3 && code.includes("ClimateQueue")) {
+                    unlockFeature("queue");
+                }
+                if (key === 4) {
+                    unlockFeature("grid");
+                }
+            } catch (err) {
+                appendConsole(`Error: ${err.message}\n`, "text-red-400");
+            }
+        }
+
+        // ---------------------------------------------------------------
+        // Tabs
+        // ---------------------------------------------------------------
+        function switchTab(tab) {
+            const isGame = tab === "game";
+            document.getElementById("view-game").classList.toggle("hidden", !isGame);
+            document.getElementById("view-code").classList.toggle("hidden", isGame);
+
+            const active = ["bg-[#283623]", "text-emerald-100"];
+            const idle = ["text-emerald-400/80", "hover:text-emerald-100"];
+            [["tab-game", isGame], ["tab-code", !isGame]].forEach(([id, on]) => {
+                const el = document.getElementById(id);
+                active.forEach(c => el.classList.toggle(c, on));
+                idle.forEach(c => el.classList.toggle(c, !on));
+            });
+        }
+
+        // ---------------------------------------------------------------
+        // Start
+        // ---------------------------------------------------------------
+        window.onload = () => {
+            lucide.createIcons();
+            renderGarden();
+            renderClimateQueue();
+            renderActionStack();
+            updateResources();
+
+            const select = document.getElementById("topic-selector");
+            Object.keys(topicTemplates).forEach(k => {
+                const opt = document.createElement("option");
+                opt.value = k;
+                opt.textContent = topicTemplates[k].title;
+                select.appendChild(opt);
+            });
+
+            // Come back to the topic you were on before the refresh
+            try {
+                const last = localStorage.getItem(TOPIC_KEY);
+                if (last && topicTemplates[last]) select.value = last;
+            } catch (e) {}
+            loadTopic();
+
+            const editor = document.getElementById("code-editor");
+            editor.addEventListener("input", persistCode);       // autosave on every edit
+            editor.addEventListener("keydown", (e) => {          // Tab inserts 4 spaces
+                if (e.key === "Tab") {
+                    e.preventDefault();
+                    editor.setRangeText("    ", editor.selectionStart, editor.selectionEnd, "end");
+                    persistCode();
+                }
+            });
+            window.addEventListener("pagehide", persistCode);
+
+            switchTab("game");
+        };
+    </script>
+</body>
+</html>
