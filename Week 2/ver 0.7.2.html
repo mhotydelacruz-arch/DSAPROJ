@@ -65,24 +65,6 @@
         }
         .tile-soil:hover { filter: brightness(1.2); }
 
-        /* Coop tile: straw/hay texture for the Poultry Farm grid */
-        .tile-coop {
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.08) 0, transparent 40%),
-                repeating-linear-gradient(45deg, #6b4f28 0 6px, #5a4020 6px 12px);
-            border: 2px solid #4a3418;
-        }
-        .tile-coop:hover { filter: brightness(1.2); }
-
-        /* Pond tile: rippled water texture for the Fish Pond grid */
-        .tile-pond {
-            background:
-                radial-gradient(circle at 30% 30%, rgba(255,255,255,0.10) 0, transparent 40%),
-                repeating-linear-gradient(45deg, #1c4f5c 0 6px, #163f4a 6px 12px);
-            border: 2px solid #0f2e37;
-        }
-        .tile-pond:hover { filter: brightness(1.2); }
-
         /* Pop-in animation played when a seed lands in a tile */
         @keyframes plant-pop {
             0%   { transform: scale(0.2) rotate(-8deg); opacity: 0; }
@@ -177,10 +159,8 @@
 
         <!-- CENTER -->
         <section class="lg:col-span-6 flex flex-col gap-4">
-            <div class="flex flex-wrap gap-2 w-fit">
+            <div class="flex gap-2 w-fit">
                 <button onclick="switchTab('game')" id="tab-game" class="pixel-btn pixel-font text-[10px] px-4 py-2.5 rounded-lg bg-amber-700 text-amber-50">🏡 Garden</button>
-                <button onclick="switchTab('poultry')" id="tab-poultry" class="pixel-btn pixel-font text-[10px] px-4 py-2.5 rounded-lg bg-[#33452e] text-amber-200/70">🐔 Coop</button>
-                <button onclick="switchTab('fish')" id="tab-fish" class="pixel-btn pixel-font text-[10px] px-4 py-2.5 rounded-lg bg-[#33452e] text-cyan-200/70">🐟 Pond</button>
                 <button onclick="switchTab('code')" id="tab-code" class="pixel-btn pixel-font text-[10px] px-4 py-2.5 rounded-lg bg-[#33452e] text-emerald-200/80">📜 Spellbook (Code)</button>
             </div>
 
@@ -199,58 +179,6 @@
                 <div id="garden-grid" class="grid grid-cols-5 gap-2 p-3 rounded-xl bg-[#2b3a1f] border-2 border-[#1a2412]"></div>
             </div>
 
-            <div id="view-poultry" class="glass-panel p-6 min-h-[380px] locked hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="pixel-font text-xs text-amber-200">🐔 Poultry Coop</h2>
-                        <p class="text-sm text-amber-300 mt-1">Pick a bird, then click a coop slot to place it.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-amber-300">Coop Stock:</span>
-                        <select id="poultry-selector" class="parchment-inset text-sm rounded-lg px-3 py-2 font-semibold">
-                        </select>
-                    </div>
-                </div>
-                <div id="poultry-grid" class="grid grid-cols-2 gap-2 p-3 rounded-xl bg-[#3a2b16] border-2 border-[#241a0d] max-w-[220px] mx-auto"></div>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-                    <button onclick="triggerPoultryFeed()" class="pixel-btn bg-[#3a2d1e] text-amber-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="utensils" class="w-4 h-4"></i> Feed
-                    </button>
-                    <button onclick="triggerPoultryDrink()" class="pixel-btn bg-[#3a2d1e] text-amber-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="droplets" class="w-4 h-4"></i> Drink
-                    </button>
-                    <button onclick="triggerPoultryProcessMeat()" class="pixel-btn bg-[#3a2d1e] text-amber-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="scissors" class="w-4 h-4"></i> Process Meat
-                    </button>
-                    <button onclick="triggerPoultryMilk()" class="pixel-btn bg-[#3a2d1e] text-amber-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="milk" class="w-4 h-4"></i> Milk Cow
-                    </button>
-                </div>
-            </div>
-
-            <div id="view-fish" class="glass-panel p-6 min-h-[380px] locked hidden">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h2 class="pixel-font text-xs text-amber-200">🐟 Fish Pond</h2>
-                        <p class="text-sm text-cyan-300 mt-1">Pick a fish, then click a pond cell to stock it.</p>
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-sm text-cyan-300">Pond Stock:</span>
-                        <select id="fish-selector" class="parchment-inset text-sm rounded-lg px-3 py-2 font-semibold">
-                        </select>
-                    </div>
-                </div>
-                <div id="fish-grid" class="grid grid-cols-2 gap-2 p-3 rounded-xl bg-[#122a33] border-2 border-[#0a1a20] max-w-[220px] mx-auto"></div>
-                <div class="grid grid-cols-2 gap-2 mt-4">
-                    <button onclick="triggerFishFeed()" class="pixel-btn bg-[#123039] text-cyan-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="utensils" class="w-4 h-4"></i> Feed
-                    </button>
-                    <button onclick="triggerFishProcessMeat()" class="pixel-btn bg-[#123039] text-cyan-200 py-2.5 rounded-xl text-xs font-medium flex items-center justify-center gap-1.5">
-                        <i data-lucide="scissors" class="w-4 h-4"></i> Process Meat
-                    </button>
-                </div>
-            </div>
-
             <div id="view-code" class="glass-panel p-6 flex flex-col flex-grow hidden">
                 <div class="flex items-center justify-between mb-3">
                     <h2 class="pixel-font text-xs text-amber-200 flex items-center gap-2">
@@ -261,11 +189,13 @@
                         <button onclick="resetTopic()" class="text-sm text-amber-300 hover:text-white underline underline-offset-2">Reset topic</button>
                     </div>
                 </div>
-                <select id="topic-selector" onchange="loadTopic()" class="w-full parchment-inset p-3 mb-4 text-sm font-semibold"></select>
+                <select id="topic-selector" onchange="loadTopic()" class="w-full parchment-inset p-3 mb-2 text-sm font-semibold"></select>
+                <p id="active-topic-indicator" class="text-xs text-amber-300/80 mb-2">⚪ Nothing run yet this session — the grid has no active handler.</p>
                 <textarea id="code-editor" class="flex-1 min-h-[260px] resize-none bg-[#0a0f0a] text-emerald-100 border-2 border-emerald-800 rounded-xl p-4 code-font leading-relaxed" spellcheck="false"></textarea>
                 <button onclick="runPythonCode()" class="pixel-btn mt-4 bg-amber-600 py-3 rounded-xl pixel-font text-[11px] text-white flex items-center justify-center gap-2">
                     <i data-lucide="play" class="w-4 h-4"></i> Cast Spell (Run Code)
                 </button>
+                <p class="text-xs text-emerald-300/60 mt-2">⚠️ Picking a different topic above does not make it live. Click Cast Spell to make its code the one answering clicks on the grid.</p>
                 <div id="output-console" class="mt-4 bg-black/70 border-2 border-emerald-900 rounded-xl p-4 text-sm min-h-[3rem] max-h-48 overflow-auto code-font whitespace-pre-wrap"></div>
             </div>
         </section>
@@ -300,8 +230,8 @@
             3: { title: "Climate Queue (FIFO)",          code: `#insert code here` },
             4: { title: "Dynamic Arrays, 2D Lists & Memory Structures", code: `#insert code here` },
             5: { title: "Hierarchical Tree",              code: `#insert code here` },
-            6: { title: "Tree Traversals",              code:  `#insert code here`  },
-        }
+            6: { title: "Tree Traversals",              code: `#insert code here` }
+        };
 
         // ---------------------------------------------------------------
         // Saved code (localStorage)
@@ -349,6 +279,11 @@
                 savedCode[key] ?? topicTemplates[key].code;
             setSaveStatus("");
             try { localStorage.setItem(TOPIC_KEY, key); } catch (e) {}
+
+            const indicator = document.getElementById("active-topic-indicator");
+            if (indicator && indicator.dataset.activeKey !== key) {
+                indicator.textContent = `⚠️ Showing "${topicTemplates[key].title}" — not yet live. Click Cast Spell to activate it.`;
+            }
         }
 
         function resetTopic() {
@@ -362,12 +297,16 @@
         // ---------------------------------------------------------------
         let pyodideInstance = null;
         let pyodidePromise = null;   // stops Pyodide loading twice
+        // Every name registered with py.globals.set below. Used to wipe the
+        // Python workspace clean before each Run, so a function or variable
+        // left behind by one topic (e.g. on_cell_click, plots, Node) can
+        // never silently answer for a different topic after you switch.
+        const BRIDGE_NAMES = [
+            "unlockFeature", "showMessage", "clearGarden", "addPlantToGrid", "updateResources",
+            "addPlantsToDropdown", "pushAction", "updateClimateQueue"
+        ];
         let gardenPlants = {};
         let cropEmoji = {};   // crop name -> emoji, filled by addPlantsToDropdown
-        let poultryAnimals = {};
-        let animalEmoji = {};  // bird name -> emoji, filled by addAnimalsToDropdown
-        let fishStock = {};
-        let fishEmoji = {};    // fish name -> emoji, filled by addFishToDropdown
         let actionStack = [];
 
         // Python lists/dicts arrive as PyProxy objects. Convert to plain JS.
@@ -403,12 +342,6 @@
                     py.globals.set("addPlantsToDropdown", addPlantsToDropdown);
                     py.globals.set("pushAction", pushAction);
                     py.globals.set("updateClimateQueue", updateClimateQueue);
-                    py.globals.set("addAnimalToGrid", addAnimalToGrid);
-                    py.globals.set("addAnimalsToDropdown", addAnimalsToDropdown);
-                    py.globals.set("clearPoultry", clearPoultry);
-                    py.globals.set("addFishToGrid", addFishToGrid);
-                    py.globals.set("addFishToDropdown", addFishToDropdown);
-                    py.globals.set("clearFish", clearFish);
 
                     // print() output and Python errors go to the on-page console
                     py.setStdout({ batched: (line) => appendConsole(line + "\n") });
@@ -433,9 +366,7 @@
                 resources: "resources-section",
                 stack: "stack-panel",
                 queue: "climate-queue-panel",
-                grid: "view-game",
-                poultry: "view-poultry",
-                fish: "view-fish"
+                grid: "view-game"
             };
             const el = document.getElementById(ids[feature]);
             if (!el) return;
@@ -463,12 +394,12 @@
             const isNew = gardenPlants[pos] !== String(name);
             gardenPlants[pos] = String(name);
             renderGarden();
-            if (isNew) spawnSparkles(pos, cropEmoji[name] || "✨", "garden-grid");
+            if (isNew) spawnSparkles(pos, cropEmoji[name] || "✨");
         }
 
         // Small "juice": a few emoji particles float up and fade from a tile.
-        function spawnSparkles(pos, glyph, gridId = "garden-grid") {
-            const grid = document.getElementById(gridId);
+        function spawnSparkles(pos, glyph) {
+            const grid = document.getElementById("garden-grid");
             const cell = grid.children[pos];
             if (!cell) return;
             const rect = cell.getBoundingClientRect();
@@ -483,173 +414,6 @@
                 document.body.appendChild(s);
                 setTimeout(() => s.remove(), 800);
             }
-        }
-
-        // --- Poultry Coop (same pattern as the garden grid, straw-tile theme) ---
-        function addAnimalToGrid(pos, name) {
-            const isNew = poultryAnimals[pos] !== String(name);
-            poultryAnimals[pos] = String(name);
-            renderPoultry();
-            if (isNew) spawnSparkles(pos, animalEmoji[name] || "✨", "poultry-grid");
-        }
-
-        function renderPoultry() {
-            const grid = document.getElementById("poultry-grid");
-            if (!grid) return;
-            grid.innerHTML = "";
-            for (let i = 0; i < 4; i++) {
-                const name = poultryAnimals[i];
-                const cell = document.createElement("button");
-                cell.type = "button";
-                cell.className = "tile-coop aspect-square rounded-lg flex items-center justify-center text-3xl cursor-pointer" +
-                    (name ? " plant-pop" : "");
-                cell.textContent = name ? (animalEmoji[name] || "🐣") : "";
-                cell.title = name ? name : "Empty coop slot. Click to place a bird";
-                cell.setAttribute("aria-label", name ? `Coop slot ${i}: ${name}` : `Coop slot ${i}: empty`);
-                cell.addEventListener("click", () => onPoultryCellClick(i));
-                grid.appendChild(cell);
-            }
-        }
-
-        async function onPoultryCellClick(pos) {
-            const handler = pyodideInstance ? pyodideInstance.globals.get("on_poultry_cell_click") : undefined;
-            if (!handler) {
-                showToast("Run your code first. It must define on_poultry_cell_click(pos, bird).");
-                return;
-            }
-            const bird = document.getElementById("poultry-selector").value;
-            try {
-                await handler(pos, bird);
-            } catch (err) {
-                showToast("Python error in on_poultry_cell_click. See the console on the code tab.");
-                appendConsole(`Error in on_poultry_cell_click: ${err.message}\n`, "text-red-400");
-            } finally {
-                if (handler.destroy) handler.destroy();
-            }
-        }
-
-        function clearPoultry() {
-            poultryAnimals = {};
-            renderPoultry();
-        }
-
-        // Generic helper: call a zero-arg Python function defined by student code,
-        // with a friendly toast if it hasn't been defined yet.
-        async function callPoultryHandler(pyFnName, friendlyName) {
-            const handler = pyodideInstance ? pyodideInstance.globals.get(pyFnName) : undefined;
-            if (!handler) {
-                showToast(`Run your code first. It must define ${pyFnName}().`);
-                return;
-            }
-            try {
-                await handler();
-            } catch (err) {
-                showToast(`Python error in ${pyFnName}. See the console on the code tab.`);
-                appendConsole(`Error in ${pyFnName}: ${err.message}\n`, "text-red-400");
-            } finally {
-                if (handler.destroy) handler.destroy();
-            }
-        }
-
-        function triggerPoultryFeed()        { callPoultryHandler("on_poultry_feed", "Feed"); }
-        function triggerPoultryDrink()        { callPoultryHandler("on_poultry_drink", "Drink"); }
-        function triggerPoultryProcessMeat()  { callPoultryHandler("on_poultry_process_meat", "Process Meat"); }
-        function triggerPoultryMilk()         { callPoultryHandler("on_poultry_milk", "Milk Cow"); }
-
-        function addAnimalsToDropdown(animals) {
-            const select = document.getElementById("poultry-selector");
-            select.innerHTML = "";
-            const list = toJS(animals);
-            if (!list) return;
-            list.forEach(([name, emoji, cost]) => {
-                animalEmoji[name] = emoji;
-                const option = document.createElement("option");
-                option.value = name;
-                option.textContent = `${emoji} ${name} (${cost}c)`;
-                select.appendChild(option);
-            });
-        }
-
-        // --- Fish Pond (same pattern as the garden grid, rippled-water theme) ---
-        function addFishToGrid(pos, name) {
-            const isNew = fishStock[pos] !== String(name);
-            fishStock[pos] = String(name);
-            renderFish();
-            if (isNew) spawnSparkles(pos, fishEmoji[name] || "✨", "fish-grid");
-        }
-
-        function renderFish() {
-            const grid = document.getElementById("fish-grid");
-            if (!grid) return;
-            grid.innerHTML = "";
-            for (let i = 0; i < 4; i++) {
-                const name = fishStock[i];
-                const cell = document.createElement("button");
-                cell.type = "button";
-                cell.className = "tile-pond aspect-square rounded-lg flex items-center justify-center text-3xl cursor-pointer" +
-                    (name ? " plant-pop" : "");
-                cell.textContent = name ? (fishEmoji[name] || "🐟") : "";
-                cell.title = name ? name : "Empty pond cell. Click to stock a fish";
-                cell.setAttribute("aria-label", name ? `Pond cell ${i}: ${name}` : `Pond cell ${i}: empty`);
-                cell.addEventListener("click", () => onFishCellClick(i));
-                grid.appendChild(cell);
-            }
-        }
-
-        async function onFishCellClick(pos) {
-            const handler = pyodideInstance ? pyodideInstance.globals.get("on_fish_cell_click") : undefined;
-            if (!handler) {
-                showToast("Run your code first. It must define on_fish_cell_click(pos, fish).");
-                return;
-            }
-            const fish = document.getElementById("fish-selector").value;
-            try {
-                await handler(pos, fish);
-            } catch (err) {
-                showToast("Python error in on_fish_cell_click. See the console on the code tab.");
-                appendConsole(`Error in on_fish_cell_click: ${err.message}\n`, "text-red-400");
-            } finally {
-                if (handler.destroy) handler.destroy();
-            }
-        }
-
-        function clearFish() {
-            fishStock = {};
-            renderFish();
-        }
-
-        // Same zero-arg-handler pattern as the coop, reused for the pond.
-        async function callFishHandler(pyFnName) {
-            const handler = pyodideInstance ? pyodideInstance.globals.get(pyFnName) : undefined;
-            if (!handler) {
-                showToast(`Run your code first. It must define ${pyFnName}().`);
-                return;
-            }
-            try {
-                await handler();
-            } catch (err) {
-                showToast(`Python error in ${pyFnName}. See the console on the code tab.`);
-                appendConsole(`Error in ${pyFnName}: ${err.message}\n`, "text-red-400");
-            } finally {
-                if (handler.destroy) handler.destroy();
-            }
-        }
-
-        function triggerFishFeed()       { callFishHandler("on_fish_feed"); }
-        function triggerFishProcessMeat() { callFishHandler("on_fish_process_meat"); }
-
-        function addFishToDropdown(fishList) {
-            const select = document.getElementById("fish-selector");
-            select.innerHTML = "";
-            const list = toJS(fishList);
-            if (!list) return;
-            list.forEach(([name, emoji, cost]) => {
-                fishEmoji[name] = emoji;
-                const option = document.createElement("option");
-                option.value = name;
-                option.textContent = `${emoji} ${name} (${cost}c)`;
-                select.appendChild(option);
-            });
         }
 
         // Tiles are buttons. Clicking one calls your Python function
@@ -806,8 +570,32 @@
 
             appendConsole("Running...\n", "text-amber-400");
             try {
+                // Clear every Python-side name this topic doesn't define itself,
+                // except the bridge functions. Without this, running Topic A then
+                // switching to Topic B without re-running A first means clicking a
+                // tile can still call A's on_cell_click against B's data (or vice
+                // versa) -- that's the "can't plant" / "wrong emoji" bug.
+                // "__dsa_keep" and "__dsa_name" are the reset snippet's own
+                // working names -- they're included in the protected set
+                // itself, so the loop never deletes the variables it's still
+                // using mid-pass (that self-deletion was the earlier bug).
+                const keepSet = "{" + BRIDGE_NAMES.map(n => `"${n}"`).join(", ") +
+                    `, "__name__", "__doc__", "__package__", "__loader__", "__spec__", "__builtins__", "__dsa_keep", "__dsa_name"}`;
+                py.runPython(
+                    `__dsa_keep = ${keepSet}\n` +
+                    `for __dsa_name in list(globals().keys()):\n` +
+                    `    if __dsa_name not in __dsa_keep:\n` +
+                    `        del globals()[__dsa_name]\n`
+                );
+
                 await py.runPythonAsync(code);
                 appendConsole("Done.\n", "text-emerald-400");
+
+                const indicator = document.getElementById("active-topic-indicator");
+                if (indicator) {
+                    indicator.textContent = `🟢 Active on grid: ${topicTemplates[key].title}`;
+                    indicator.dataset.activeKey = key;
+                }
 
                 if (key === 1 && code.includes("addPlantsToDropdown")) {
                     unlockFeature("resources");
@@ -822,13 +610,6 @@
                 if (key === 4) {
                     unlockFeature("grid");
                 }
-                if (key === 6 && code.includes("PoultryBST")) {
-                    unlockFeature("poultry");
-                    pushAction("Poultry Coop BST Initialized");
-                }
-                if (key === 6 && code.includes("on_fish_cell_click")) {
-                    unlockFeature("fish");
-                }
             } catch (err) {
                 appendConsole(`Error: ${err.message}\n`, "text-red-400");
             }
@@ -837,24 +618,17 @@
         // ---------------------------------------------------------------
         // Tabs
         // ---------------------------------------------------------------
-        const TAB_STYLES = {
-            game:    { id: "tab-game",    active: ["bg-amber-700", "text-amber-50"],     idle: ["bg-[#33452e]", "text-emerald-200/70"] },
-            poultry: { id: "tab-poultry", active: ["bg-orange-800", "text-amber-50"],     idle: ["bg-[#33452e]", "text-amber-200/70"] },
-            fish:    { id: "tab-fish",    active: ["bg-cyan-700", "text-cyan-50"],        idle: ["bg-[#33452e]", "text-cyan-200/70"] },
-            code:    { id: "tab-code",    active: ["bg-emerald-700", "text-emerald-50"],  idle: ["bg-[#33452e]", "text-emerald-200/80"] }
-        };
-
         function switchTab(tab) {
-            const views = { game: "view-game", poultry: "view-poultry", fish: "view-fish", code: "view-code" };
-            Object.entries(views).forEach(([name, id]) => {
-                document.getElementById(id).classList.toggle("hidden", name !== tab);
-            });
+            const isGame = tab === "game";
+            document.getElementById("view-game").classList.toggle("hidden", !isGame);
+            document.getElementById("view-code").classList.toggle("hidden", isGame);
 
-            Object.entries(TAB_STYLES).forEach(([name, cfg]) => {
-                const el = document.getElementById(cfg.id);
-                const on = name === tab;
-                (on ? cfg.idle : cfg.active).forEach(c => el.classList.remove(c));
-                (on ? cfg.active : cfg.idle).forEach(c => el.classList.add(c));
+            const active = ["bg-[#283623]", "text-emerald-100"];
+            const idle = ["text-emerald-400/80", "hover:text-emerald-100"];
+            [["tab-game", isGame], ["tab-code", !isGame]].forEach(([id, on]) => {
+                const el = document.getElementById(id);
+                active.forEach(c => el.classList.toggle(c, on));
+                idle.forEach(c => el.classList.toggle(c, !on));
             });
         }
 
@@ -864,8 +638,6 @@
         window.onload = () => {
             lucide.createIcons();
             renderGarden();
-            renderPoultry();
-            renderFish();
             renderClimateQueue();
             renderActionStack();
             updateResources();
