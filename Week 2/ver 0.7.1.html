@@ -261,11 +261,13 @@
                         <button onclick="resetTopic()" class="text-sm text-amber-300 hover:text-white underline underline-offset-2">Reset topic</button>
                     </div>
                 </div>
-                <select id="topic-selector" onchange="loadTopic()" class="w-full parchment-inset p-3 mb-4 text-sm font-semibold"></select>
+                <select id="topic-selector" onchange="loadTopic()" class="w-full parchment-inset p-3 mb-2 text-sm font-semibold"></select>
+                <p id="active-topic-indicator" class="text-xs text-amber-300/80 mb-2">⚪ Nothing run yet this session — the grid has no active handler.</p>
                 <textarea id="code-editor" class="flex-1 min-h-[260px] resize-none bg-[#0a0f0a] text-emerald-100 border-2 border-emerald-800 rounded-xl p-4 code-font leading-relaxed" spellcheck="false"></textarea>
                 <button onclick="runPythonCode()" class="pixel-btn mt-4 bg-amber-600 py-3 rounded-xl pixel-font text-[11px] text-white flex items-center justify-center gap-2">
                     <i data-lucide="play" class="w-4 h-4"></i> Cast Spell (Run Code)
                 </button>
+                <p class="text-xs text-emerald-300/60 mt-2">⚠️ Picking a different topic above does not make it live. Click Cast Spell to make its code the one answering clicks on the grid.</p>
                 <div id="output-console" class="mt-4 bg-black/70 border-2 border-emerald-900 rounded-xl p-4 text-sm min-h-[3rem] max-h-48 overflow-auto code-font whitespace-pre-wrap"></div>
             </div>
         </section>
@@ -349,6 +351,11 @@
                 savedCode[key] ?? topicTemplates[key].code;
             setSaveStatus("");
             try { localStorage.setItem(TOPIC_KEY, key); } catch (e) {}
+
+            const indicator = document.getElementById("active-topic-indicator");
+            if (indicator && indicator.dataset.activeKey !== key) {
+                indicator.textContent = `⚠️ Showing "${topicTemplates[key].title}" — not yet live. Click Cast Spell to activate it.`;
+            }
         }
 
         function resetTopic() {
@@ -362,6 +369,15 @@
         // ---------------------------------------------------------------
         let pyodideInstance = null;
         let pyodidePromise = null;   // stops Pyodide loading twice
+        // Every name registered with py.globals.set below. Used to wipe the
+        // Python workspace clean before each Run, so a function or variable
+        // left behind by one topic (e.g. on_cell_click, plots, Node) can
+        // never silently answer for a different topic after you switch.
+        const BRIDGE_NAMES = [
+            "unlockFeature", "showMessage", "clearGarden", "addPlantToGrid", "updateResources",
+            "addPlantsToDropdown", "pushAction", "updateClimateQueue", "addAnimalToGrid",
+            "addAnimalsToDropdown", "clearPoultry", "addFishToGrid", "addFishToDropdown", "clearFish"
+        ];
         let gardenPlants = {};
         let cropEmoji = {};   // crop name -> emoji, filled by addPlantsToDropdown
         let poultryAnimals = {};
@@ -806,8 +822,29 @@
 
             appendConsole("Running...\n", "text-amber-400");
             try {
+                // Clear every Python-side name this topic doesn't define itself,
+                // except the bridge functions. Without this, running Topic A then
+                // switching to Topic B without re-running A first means clicking a
+                // tile can still call A's on_cell_click against B's data (or vice
+                // versa) -- that's the "can't plant" / "wrong emoji" bug.
+                const keepSet = "{" + BRIDGE_NAMES.map(n => `"${n}"`).join(", ") +
+                    `, "__name__", "__doc__", "__package__", "__loader__", "__spec__", "__builtins__"}`;
+                py.runPython(
+                    `__keep = ${keepSet}\n` +
+                    `for __n in list(globals().keys()):\n` +
+                    `    if __n not in __keep:\n` +
+                    `        del globals()[__n]\n` +
+                    `del __keep\n`
+                );
+
                 await py.runPythonAsync(code);
                 appendConsole("Done.\n", "text-emerald-400");
+
+                const indicator = document.getElementById("active-topic-indicator");
+                if (indicator) {
+                    indicator.textContent = `🟢 Active on grid: ${topicTemplates[key].title}`;
+                    indicator.dataset.activeKey = key;
+                }
 
                 if (key === 1 && code.includes("addPlantsToDropdown")) {
                     unlockFeature("resources");
@@ -822,13 +859,7 @@
                 if (key === 4) {
                     unlockFeature("grid");
                 }
-                if (key === 6 && code.includes("PoultryBST")) {
-                    unlockFeature("poultry");
-                    pushAction("Poultry Coop BST Initialized");
-                }
-                if (key === 6 && code.includes("on_fish_cell_click")) {
-                    unlockFeature("fish");
-                }
+
             } catch (err) {
                 appendConsole(`Error: ${err.message}\n`, "text-red-400");
             }
