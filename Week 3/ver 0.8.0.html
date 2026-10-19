@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garden Sanctuary — A Cozy Pixel Farm</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root{--night:#1b2417;--forest:#2b3a24;--wood:#4a3a28;--wood2:#3a2d1e;--trim:#8a6a3d;--paper:#e8d5a8;--ink:#3a2d1e;--mint:#a9d6a2;--gold:#f4cf74;--soil:#5c4326;--soil2:#543c22}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#2b3a24 0%,#1b2417 100%);color:#f0ead6;font-family:'VT323',monospace;font-size:20px;image-rendering:pixelated}
+.pixel-font{font-family:'Press Start 2P',monospace;letter-spacing:.2px}.code-font{font-family:'JetBrains Mono',monospace;font-size:12px}
+.glass-panel{background:linear-gradient(180deg,#4a3a28 0%,#3a2d1e 100%);border:3px solid #8a6a3d;border-radius:10px;box-shadow:inset 0 0 0 2px #2a2013,0 6px 0 rgba(0,0,0,.35)}
+.parchment{background:#e8d5a8;color:#3a2d1e;border:2px solid #8a6a3d;border-radius:6px}
+.pixel-btn{border:2px solid #1a2e15;box-shadow:0 4px 0 #1a2e15;transition:transform .08s,box-shadow .08s,filter .15s}.pixel-btn:hover{filter:brightness(1.12)}.pixel-btn:active{transform:translateY(4px);box-shadow:0 0 0 #1a2e15}.pixel-btn:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+.tile-soil{position:relative;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.06) 0,transparent 40%),repeating-linear-gradient(45deg,#5c4326 0 6px,#543c22 6px 12px);border:2px solid #3a2b16;box-shadow:inset 0 0 0 2px rgba(211,168,102,.08);transition:filter .12s,transform .12s}.tile-soil:hover{filter:brightness(1.22);transform:translateY(-2px)}
+.plant-pop{animation:plant-pop .32s ease-out}@keyframes plant-pop{0%{transform:scale(.2) rotate(-8deg);opacity:0}65%{transform:scale(1.2) rotate(3deg);opacity:1}100%{transform:scale(1);opacity:1}}
+.sparkle{position:fixed;pointer-events:none;z-index:80;font-size:20px;animation:sparkle-float .8s ease-out forwards}@keyframes sparkle-float{to{transform:translateY(-45px) scale(.4);opacity:0}}
+.grow-wiggle{animation:grow-wiggle .5s ease-out}@keyframes grow-wiggle{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.tab-pane{display:none}.tab-pane.active{display:block}.tab-button.active{background:#80551e!important;color:#fff5d7!important}
+.progress-track{height:9px;background:#171e15;border:1px solid #7c6037;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#69b965,#b7df6a);transition:width .25s}
+.resource-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.order-card{background:rgba(80,48,20,.68);border:1px solid #8a5a28;border-radius:10px}.toast{animation:toast-in .2s ease-out}@keyframes toast-in{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+#boot-overlay{position:fixed;inset:0;z-index:100;background:rgba(14,21,13,.88);display:flex;align-items:center;justify-content:center;padding:20px}.loader-card{width:min(480px,94vw);text-align:center;padding:32px}
+@media(max-width:1000px){.game-layout{grid-template-columns:1fr!important}.farm-area{order:1}.storage-area{order:2}.town-area{order:3}}
+@media(max-width:520px){body{font-size:18px}.farm-shell{padding:12px!important}.farm-grid{gap:5px!important;padding:7px!important}.farm-grid button{border-radius:5px!important}.top-stats{gap:5px!important}.top-stat{padding:8px!important}.top-stat .pixel-font{font-size:8px!important}.tool-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+</style>
+</head>
+<body class="min-h-screen p-3 md:p-5">
+<div id="boot-overlay"><div class="glass-panel loader-card"><div class="text-5xl mb-4">🌱</div><h1 class="pixel-font text-amber-200 text-xs leading-7">GARDEN SANCTUARY</h1><p id="boot-status" class="text-emerald-200 mt-5">Waking up the garden…</p><div class="progress-track mt-5"><div class="progress-fill" style="width:30%"></div></div><p class="text-xs text-emerald-100/60 mt-4">The Python garden engine is loading in your browser.</p></div></div>
+<div class="max-w-[1500px] mx-auto">
+<header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-4 pb-3 border-b border-emerald-100/15">
+  <div><div class="flex items-center gap-3"><span class="text-3xl">🌾</span><h1 class="pixel-font text-amber-200 text-sm md:text-base drop-shadow-[2px_2px_0_rgba(0,0,0,.6)]">Garden Sanctuary</h1></div><p class="text-emerald-200/80 text-lg ml-11">A little patch of pixel-country. Grow good things, share them with the village.</p></div>
+  <div class="flex flex-wrap items-center gap-2 top-stats">
+    <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">DAY</span><div id="day-counter" class="pixel-font text-sm text-white mt-1">01</div></div>
+    <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">LEVEL</span><div id="level-counter" class="pixel-font text-sm text-emerald-300 mt-1">1</div></div>
+    <div class="glass-panel top-stat px-4 py-2 min-w-40"><div class="flex justify-between gap-4 text-sm"><span class="text-amber-200">GROWING TO LEVEL <b id="next-level">2</b></span><span id="xp-counter">0 / 30 XP</span></div><div class="progress-track mt-1"><div id="xp-bar" class="progress-fill" style="width:0%"></div></div></div>
+    <button id="next-day-button" onclick="nextDay()" class="pixel-btn rounded-lg bg-emerald-800 px-4 py-3 text-emerald-50"><span class="text-xl">☀</span> Next day <span id="day-timer" class="text-amber-200">02:00</span></button>
+  </div>
+</header>
+<nav class="flex gap-2 mb-4"><button id="tab-farm" onclick="switchTab('farm')" class="pixel-btn tab-button active pixel-font text-[9px] px-4 py-3 rounded-lg bg-amber-800 text-amber-50">🏡 The Farm</button><button id="tab-notebook" onclick="switchTab('notebook')" class="pixel-btn tab-button pixel-font text-[9px] px-4 py-3 rounded-lg bg-[#33452e] text-emerald-200">📜 Field Notebook</button><span id="engine-status" class="ml-auto text-emerald-200/70 self-center text-sm">Python engine: starting</span></nav>
+<div id="pane-farm" class="tab-pane active">
+<main class="game-layout grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+  <aside class="storage-area lg:col-span-3 flex flex-col gap-4">
+    <section class="glass-panel p-4">
+      <h2 class="pixel-font text-[10px] text-amber-200 border-b-2 border-amber-800/60 pb-3 mb-4 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-400"></i> The Granary</h2>
+      <div class="space-y-4">
+        <div><div class="resource-row text-sm mb-1"><span class="text-blue-200">💧 Water</span><span id="water-label">90 / 200</span></div><div class="progress-track"><div id="water-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-300" style="width:45%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-lime-200">🌰 Seeds</span><span id="seeds-label">18</span></div><div class="progress-track"><div id="seeds-bar" class="h-full bg-gradient-to-r from-emerald-500 to-lime-300" style="width:70%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-amber-200">🪙 Coins</span><span id="coins-label">160</span></div><div class="progress-track"><div id="coins-bar" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width:55%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-rose-200">🧴 Bug spray</span><span id="spray-label">3</span></div><div class="progress-track"><div id="spray-bar" class="h-full bg-gradient-to-r from-rose-500 to-pink-300" style="width:60%"></div></div></div>
+      </div>
+      <div class="mt-5 pt-3 border-t border-amber-800/60"><h3 class="pixel-font text-[8px] text-amber-200 mb-3">HARVEST BASKET</h3><div id="produce-list" class="grid grid-cols-2 gap-2 text-sm"></div></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-[9px] text-amber-300 mb-3 flex items-center gap-2">🛒 Village Market</h3>
+      <div class="grid grid-cols-1 gap-2"><button onclick="buySupply('seeds')" class="pixel-btn rounded-lg bg-[#6b5228] px-3 py-2 text-left text-amber-50 text-sm">🌰 10 seeds <span class="float-right text-amber-200">35 coins</span></button><button onclick="buySupply('water')" class="pixel-btn rounded-lg bg-[#345766] px-3 py-2 text-left text-blue-50 text-sm">💧 30 water <span class="float-right text-blue-200">20 coins</span></button><button onclick="buySupply('spray')" class="pixel-btn rounded-lg bg-[#68413e] px-3 py-2 text-left text-rose-50 text-sm">🧴 2 bug spray <span class="float-right text-rose-200">18 coins</span></button></div>
+      <p class="text-emerald-100/60 text-xs mt-3">Trade a few coins for the things your farm needs.</p>
+    </section>
+  </aside>
+  <section class="farm-area lg:col-span-6 flex flex-col gap-4">
+    <div class="glass-panel farm-shell p-5 md:p-6">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-4">
+        <div><h2 class="pixel-font text-amber-200 text-[10px]">Your Patch</h2><p id="farm-subtitle" class="text-emerald-200 text-lg mt-1">The soil is ready for your first seed.</p></div>
+        <div class="flex flex-wrap items-center gap-2"><label for="crop-picker" class="text-emerald-200">Seed:</label><select id="crop-picker" class="parchment px-2 py-1 text-base font-semibold max-w-48" onchange="setCrop(this.value)"></select></div>
+      </div>
+      <div id="garden-grid" class="farm-grid grid grid-cols-5 gap-2 p-3 rounded-xl bg-[#26351e] border-2 border-[#172111]"></div>
+      <div class="mt-4 flex flex-col gap-2"><div class="flex items-center justify-between text-sm"><span class="text-emerald-200">Daylight until tomorrow</span><span id="daylight-caption">02:00 remaining</span></div><div class="progress-track h-3"><div id="daylight-bar" class="progress-fill bg-gradient-to-r from-amber-400 to-orange-300" style="width:0%"></div></div></div>
+    </div>
+    <section class="glass-panel p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3"><h3 class="pixel-font text-amber-200 text-[9px]">Choose your chore</h3><span class="text-emerald-100/60 text-sm">Plant · tend · harvest</span></div>
+      <div class="tool-row grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <button data-tool="Plant" onclick="setTool('Plant')" class="pixel-btn tool-button rounded-lg bg-amber-700 py-2 text-amber-50">🌱<br>Plant</button>
+        <button data-tool="Water" onclick="setTool('Water')" class="pixel-btn tool-button rounded-lg bg-blue-800 py-2 text-blue-50">💧<br>Water</button>
+        <button data-tool="Harvest" onclick="setTool('Harvest')" class="pixel-btn tool-button rounded-lg bg-emerald-800 py-2 text-emerald-50">🧺<br>Harvest</button>
+        <button data-tool="Scan" onclick="setTool('Scan')" class="pixel-btn tool-button rounded-lg bg-violet-900 py-2 text-violet-50">🔎<br>Bug scan</button>
+        <button data-tool="Clean" onclick="setTool('Clean')" class="pixel-btn tool-button rounded-lg bg-rose-900 py-2 text-rose-50">🧹<br>Clean</button>
+        <button id="undo-button" aria-label="Undo last garden action" onclick="undoAction()" class="pixel-btn rounded-lg bg-[#3a2d1e] py-2 text-amber-100">↶<br>Undo</button>
+      </div>
+    </section>
+    <section class="glass-panel p-4"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">A NOTE FROM THE FARM</h3><p id="farm-message" class="text-emerald-100">Loading your garden journal…</p></section>
+  </section>
+  <aside class="town-area lg:col-span-3 flex flex-col gap-4">
+    <section class="glass-panel p-4">
+      <h2 class="pixel-font text-amber-200 text-[9px] flex items-center gap-2 mb-3"><i data-lucide="truck" class="w-4 h-4 text-amber-400"></i> Village Orders</h2>
+      <p class="text-emerald-100/70 text-sm mb-3">Fill a neighbor's basket for coins and experience.</p>
+      <div id="orders-list" class="space-y-3"></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-amber-300 text-[9px] mb-3 flex items-center gap-2">☁ Weather Queue <span class="text-emerald-200/60 normal-case">FIFO</span></h3>
+      <div id="climate-queue" class="space-y-2"></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-amber-300 text-[9px] mb-3 flex items-center gap-2">📚 Deed Stack <span class="text-emerald-200/60 normal-case">LIFO</span></h3>
+      <div id="action-stack" class="space-y-2 text-sm"><div class="text-emerald-100/50">Your first farm chore will appear here.</div></div>
+    </section>
+  </aside>
+</main>
+</div>
+<div id="pane-notebook" class="tab-pane">
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+    <section class="xl:col-span-8 glass-panel p-5">
+      <div class="flex flex-wrap justify-between items-center gap-3"><div><h2 class="pixel-font text-amber-200 text-[10px]">Field Notebook · Python Engine</h2><p class="text-emerald-200 mt-2">The farm runs on Python data structures. Peek inside, experiment, then run your version.</p></div><button onclick="resetPythonEngine()" class="pixel-btn rounded-lg bg-amber-700 px-4 py-2 text-amber-50">▶ Run / restart engine</button></div>
+      <p id="notebook-status" class="text-emerald-300 text-sm mt-3">Engine starts automatically when the game opens. Running changed code restarts the farm and replaces its current save.</p>
+      <textarea id="python-editor" spellcheck="false" class="code-font w-full h-[68vh] min-h-[460px] mt-3 resize-y bg-[#0a0f0a] text-emerald-100 border-2 border-emerald-800 rounded-xl p-4 leading-relaxed"></textarea>
+    </section>
+    <aside class="xl:col-span-4 flex flex-col gap-4">
+      <section class="glass-panel p-5"><h3 class="pixel-font text-amber-300 text-[9px] mb-3">GARDEN ALGORITHMS</h3><div class="space-y-3 text-emerald-100"><p><b class="text-amber-200">Resource bag:</b> seed, water, produce, spray, and coins are held in a Python inventory object.</p><p><b class="text-amber-200">Action stack:</b> farm chores save snapshots; Undo pops and restores the latest one.</p><p><b class="text-amber-200">Climate queue:</b> the oldest forecast becomes today's weather, then a fresh forecast joins the back.</p><p><b class="text-amber-200">Action trees:</b> watering, harvesting, and daybreak follow check-then-act hierarchies.</p><p><b class="text-amber-200">Tree traversals:</b> pest scan uses preorder, the sweep visits level-order, cleanup uses postorder.</p></div></section>
+      <section class="glass-panel p-5"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">HOW TO PLAY</h3><ol class="list-decimal pl-5 text-emerald-100 space-y-1"><li>Pick a crop and Plant an empty bed.</li><li>Water it, then wait for daybreak.</li><li>Harvest mature crops into your basket.</li><li>Complete village orders for coins and XP.</li><li>Buy supplies, tend pests, and grow your farm reputation.</li></ol><p class="text-emerald-100/60 text-sm mt-3">A day ends every 2 minutes. You can also tap Next day to keep the garden moving.</p></section>
+    </aside>
+  </div>
+</div>
+<footer class="text-center text-emerald-100/45 text-sm mt-5 pb-3">A cozy little farm prototype · Python runs locally in your browser via Pyodide · progress saves on this device</footer>
+</div>
+<div id="toast-container" class="fixed bottom-5 right-5 z-[120] flex flex-col gap-2 pointer-events-none"></div>
+
+<script type="text/plain" id="python-game">
+from collections import deque
+from copy import deepcopy
+import json
+import random
+
+CROP_BOOK = {
+    "Turnip": {"emoji": "🥕", "seed_cost": 5, "days": 1, "yield": 3, "sell": 8, "unlock": 1},
+    "Carrot": {"emoji": "🥕", "seed_cost": 7, "days": 2, "yield": 3, "sell": 12, "unlock": 1},
+    "Berry": {"emoji": "🍓", "seed_cost": 10, "days": 2, "yield": 3, "sell": 17, "unlock": 2},
+    "Sunflower": {"emoji": "🌻", "seed_cost": 12, "days": 3, "yield": 2, "sell": 24, "unlock": 2},
+    "Pumpkin": {"emoji": "🎃", "seed_cost": 16, "days": 3, "yield": 2, "sell": 32, "unlock": 3},
+}
+WEATHER = {
+    "Sunny": {"icon": "☀️", "note": "A bright day for the patch."},
+    "Rain": {"icon": "🌧️", "note": "Rain waters every planted bed."},
+    "Cloudy": {"icon": "☁️", "note": "Soft clouds roll over the village."},
+    "Breezy": {"icon": "🍃", "note": "A gentle breeze, and maybe a few bugs."},
+}
+
+class ResourceBag:
+    def __init__(self, items=None):
+        self.items = items or {"Seeds": 18, "Water": 90, "Spray": 3, "Coins": 160,
+                              "Turnip": 0, "Carrot": 0, "Berry": 0, "Sunflower": 0, "Pumpkin": 0}
+    def amount(self, item): return self.items.get(item, 0)
+    def has(self, item, quantity=1): return self.amount(item) >= quantity
+    def take(self, item, quantity=1):
+        if not self.has(item, quantity): return False
+        self.items[item] -= quantity
+        return True
+    def add(self, item, quantity=1): self.items[item] = self.amount(item) + quantity
+    def snapshot(self): return dict(self.items)
+
+class FarmCell:
+    def __init__(self, crop=None, growth=0, watered=False, pest=False):
+        self.crop, self.growth, self.watered, self.pest = crop, growth, watered, pest
+    def to_dict(self): return {"crop": self.crop, "growth": self.growth, "watered": self.watered, "pest": self.pest}
+
+class FarmGrid:
+    def __init__(self, rows=5, cols=5):
+        self.rows, self.cols = rows, cols
+        self.cells = [[FarmCell() for _ in range(cols)] for _ in range(rows)]
+    def get(self, row, col): return self.cells[row][col]
+    def coords(self):
+        for row in range(self.rows):
+            for col in range(self.cols): yield row, col
+    def scan_tree(self):
+        coords = list(self.coords())
+        def build(lo, hi):
+            if lo >= hi: return None
+            mid = (lo + hi) // 2
+            node = ScanNode(mid)
+            node.left, node.right = build(lo, mid), build(mid + 1, hi)
+            return node
+        return build(0, len(coords))
+
+class ActionHistoryStack:
+    def __init__(self): self.items = []
+    def push(self, snapshot, label): self.items.append((snapshot, label))
+    def pop(self): return self.items.pop() if self.items else None
+    def labels(self): return [item[1] for item in reversed(self.items[-6:])]
+
+class ClimateQueue:
+    def __init__(self, items=None): self.items = deque(items or ["Rain", "Cloudy", "Sunny", "Breezy"])
+    def peek(self): return list(self.items)
+    def advance(self):
+        today = self.items.popleft()
+        self.items.append(random.choice(list(WEATHER)))
+        return today
+
+class ActionNode:
+    def __init__(self, name, action=None, children=None):
+        self.name, self.action, self.children = name, action, children or []
+
+def run_action_tree(node, context):
+    if node.action and node.action(context) is False: return False
+    for child in node.children:
+        if not run_action_tree(child, context): return False
+    return True
+
+class ScanNode:
+    def __init__(self, value): self.value, self.left, self.right = value, None, None
+
+def preorder(node):
+    if node is not None:
+        yield node.value
+        yield from preorder(node.left)
+        yield from preorder(node.right)
+
+def level_order(root):
+    queue = deque([root] if root else [])
+    while queue:
+        node = queue.popleft()
+        yield node.value
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)
+
+def postorder(node):
+    if node is not None:
+        yield from postorder(node.left)
+        yield from postorder(node.right)
+        yield node.value
+
+class GardenWorld:
+    def __init__(self, saved_json=""):
+        self.grid = FarmGrid()
+        self.bag = ResourceBag()
+        self.history = ActionHistoryStack()
+        self.climate = ClimateQueue()
+        self.weather = "Sunny"
+        self.day, self.level, self.xp = 1, 1, 0
+        self.next_order_id = 1
+        self.logs = ["A fresh morning in Garden Sanctuary. Plant a seed and make yourself at home."]
+        self.orders = []
+        if saved_json:
+            try: self.restore(json.loads(saved_json))
+            except Exception: self.start_fresh()
+        else: self.start_fresh()
+        self.emit()
+
+    def start_fresh(self):
+        self.grid = FarmGrid()
+        self.bag = ResourceBag()
+        self.history = ActionHistoryStack()
+        self.climate = ClimateQueue()
+        self.weather, self.day, self.level, self.xp = "Sunny", 1, 1, 0
+        self.next_order_id = 1
+        self.logs = ["A fresh morning in Garden Sanctuary. Plant a seed and make yourself at home."]
+        self.orders = [self.make_order() for _ in range(3)]
+
+    def save_data(self):
+        return {"bag": self.bag.snapshot(), "plots": [[cell.to_dict() for cell in row] for row in self.grid.cells],
+                "climate": self.climate.peek(), "weather": self.weather, "day": self.day, "level": self.level,
+                "xp": self.xp, "next_order_id": self.next_order_id, "orders": deepcopy(self.orders), "logs": self.logs[-8:]}
+
+    def restore(self, data):
+        self.bag = ResourceBag(deepcopy(data.get("bag", {})))
+        plots = data.get("plots", [])
+        self.grid = FarmGrid()
+        for row in range(min(5, len(plots))):
+            for col in range(min(5, len(plots[row]))):
+                item = plots[row][col]
+                self.grid.cells[row][col] = FarmCell(item.get("crop"), item.get("growth", 0), item.get("watered", False), item.get("pest", False))
+        self.climate = ClimateQueue(data.get("climate", ["Rain", "Cloudy", "Sunny", "Breezy"]))
+        self.weather = data.get("weather", "Sunny")
+        self.day, self.level, self.xp = data.get("day", 1), data.get("level", 1), data.get("xp", 0)
+        self.next_order_id = data.get("next_order_id", 1)
+        self.orders = data.get("orders", []) or [self.make_order() for _ in range(3)]
+        self.logs = data.get("logs", []) or ["Welcome back to your garden."]
+        if not hasattr(self, "history"): self.history = ActionHistoryStack()
+
+    def emit(self):
+        renderState(json.dumps(self.view()))
+        persistState(json.dumps(self.save_data()))
+
+    def note(self, text):
+        self.logs.append(text)
+        self.logs = self.logs[-8:]
+        showNote(text)
+
+    def crop_options(self):
+        return [{"name": name, **data, "unlocked": self.level >= data["unlock"]} for name, data in CROP_BOOK.items()]
+
+    def make_order(self):
+        available = [name for name, data in CROP_BOOK.items() if data["unlock"] <= self.level]
+        crop = random.choice(available)
+        quantity = random.randint(1, 2) if crop in ("Turnip", "Carrot") else 1
+        data = CROP_BOOK[crop]
+        order = {"id": self.next_order_id, "crop": crop, "quantity": quantity,
+                 "coins": data["sell"] * quantity + random.randint(3, 7), "xp": 8 + quantity * 3}
+        self.next_order_id += 1
+        return order
+
+    def view(self):
+        plots = []
+        for row in self.grid.cells:
+            plots.append([cell.to_dict() for cell in row])
+        threshold = 30 + (self.level - 1) * 20
+        planted = sum(1 for row in plots for cell in row if cell["crop"])
+        ripe = sum(1 for row in plots for cell in row if cell["crop"] and cell["growth"] >= CROP_BOOK[cell["crop"]]["days"])
+        return {"resources": self.bag.snapshot(), "plots": plots, "orders": self.orders,
+                "weather": self.weather, "weather_info": WEATHER.get(self.weather, WEATHER["Sunny"]),
+                "forecast": self.climate.peek(), "day": self.day, "level": self.level, "xp": self.xp,
+                "xp_needed": threshold, "crops": self.crop_options(), "journal": self.history.labels(),
+                "logs": list(reversed(self.logs[-5:])), "planted": planted, "ripe": ripe,
+                "pests": sum(1 for row in plots for cell in row if cell["pest"])}
+
+    def remember(self, label): self.history.push(self.save_data(), label)
+
+    def undo(self):
+        record = self.history.pop()
+        if not record:
+            self.note("The deed stack is empty; there is nothing to undo.")
+            self.emit()
+            return
+        snapshot, label = record
+        self.restore(snapshot)
+        self.note("Undid: " + label)
+        self.emit()
+
+    def plot_action(self, pos, action, crop_name):
+        if pos < 0 or pos >= 25: return
+        row, col = divmod(pos, 5)
+        cell = self.grid.get(row, col)
+        if action == "Plant":
+            if cell.crop:
+                self.note("That bed is occupied. Harvest it before replanting.")
+            elif self.level < CROP_BOOK[crop_name]["unlock"]:
+                self.note("That crop unlocks at level " + str(CROP_BOOK[crop_name]["unlock"]) + ".")
+            elif not self.bag.has("Seeds"):
+                self.note("You are out of seeds. Visit the village market.")
+            elif not self.bag.has("Coins", CROP_BOOK[crop_name]["seed_cost"]):
+                self.note("Not enough coins for those seeds.")
+            else:
+                self.remember("Planted " + crop_name)
+                self.bag.take("Seeds")
+                self.bag.take("Coins", CROP_BOOK[crop_name]["seed_cost"])
+                cell.crop, cell.growth, cell.watered, cell.pest = crop_name, 0, False, False
+                self.note("Planted " + crop_name + " · a new little life!")
+        elif action == "Water": self.water_plot(row, col)
+        elif action == "Harvest": self.harvest_plot(row, col)
+        elif action == "Scan": self.scan_pests()
+        elif action == "Clean": self.clean_pests()
+        self.emit()
+
+    def water_plot(self, row, col):
+        cell = self.grid.get(row, col)
+        context = {"cell": cell, "row": row, "col": col}
+        def check(ctx):
+            if ctx["cell"].crop is None: self.note("Plant something in that bed before watering."); return False
+            if ctx["cell"].watered: self.note("This crop is already watered for today."); return False
+            if not self.bag.has("Water", 5): self.note("The water barrel is low. Try the market or wait for rain."); return False
+            return True
+        def apply(ctx):
+            self.remember("Watered " + ctx["cell"].crop)
+            self.bag.take("Water", 5)
+            ctx["cell"].watered = True
+            self.note("Watered the " + ctx["cell"].crop.lower() + " bed.")
+        tree = ActionNode("Watering tree", children=[ActionNode("Check soil and supplies", check), ActionNode("Water the plot", apply)])
+        run_action_tree(tree, context)
+
+    def harvest_plot(self, row, col):
+        cell = self.grid.get(row, col)
+        context = {"cell": cell}
+        def check(ctx):
+            crop = ctx["cell"].crop
+            if crop is None: self.note("That bed is empty."); return False
+            if ctx["cell"].pest: self.note("Clear the bug before harvesting this crop."); return False
+            if ctx["cell"].growth < CROP_BOOK[crop]["days"]: self.note("Not ripe yet. Water it and wait for daybreak."); return False
+            return True
+        def harvest(ctx):
+            crop = ctx["cell"].crop
+            self.remember("Harvested " + crop)
+            self.bag.add(crop, CROP_BOOK[crop]["yield"])
+            ctx["cell"].crop, ctx["cell"].growth, ctx["cell"].watered, ctx["cell"].pest = None, 0, False, False
+            self.add_xp(3)
+            self.note("Harvested " + crop + " · " + str(CROP_BOOK[crop]["yield"]) + " added to the basket.")
+        tree = ActionNode("Harvest tree", children=[ActionNode("Check ripe crop", check), ActionNode("Gather produce", harvest)])
+        run_action_tree(tree, context)
+
+    def add_xp(self, amount):
+        self.xp += amount
+        while self.xp >= 30 + (self.level - 1) * 20:
+            self.xp -= 30 + (self.level - 1) * 20
+            self.level += 1
+            self.note("Level up! You are now level " + str(self.level) + ". New crops may be ready to plant!")
+
+    def complete_order(self, order_id):
+        order = next((item for item in self.orders if item["id"] == order_id), None)
+        if order is None: return
+        crop, qty = order["crop"], order["quantity"]
+        if not self.bag.has(crop, qty):
+            self.note("Your basket needs " + str(qty) + " " + crop.lower() + " to fill that order.")
+            self.emit(); return
+        self.remember("Filled village order")
+        self.bag.take(crop, qty)
+        self.bag.add("Coins", order["coins"])
+        self.add_xp(order["xp"])
+        self.orders.remove(order)
+        self.orders.append(self.make_order())
+        self.note("Order delivered! +" + str(order["coins"]) + " coins and +" + str(order["xp"]) + " XP.")
+        self.emit()
+
+    def buy_supply(self, item):
+        offers = {"seeds": ("Seeds", 10, 35), "water": ("Water", 30, 20), "spray": ("Spray", 2, 18)}
+        if item not in offers: return
+        name, quantity, cost = offers[item]
+        if name == "Water": quantity = min(quantity, 200 - self.bag.amount("Water"))
+        if quantity <= 0:
+            self.note("The water barrel is already full.")
+        elif not self.bag.take("Coins", cost): self.note("Not enough coins for that market bundle.")
+        else:
+            self.remember("Bought " + name.lower())
+            self.bag.add(name, quantity)
+            self.note("The market stall packed " + str(quantity) + " " + name.lower() + ".")
+        self.emit()
+
+    def scan_pests(self):
+        root = self.grid.scan_tree()
+        found = [pos for pos in preorder(root) if self.grid.get(*divmod(pos, 5)).pest]
+        swept = list(level_order(root))
+        self.note("Garden scan: DFS found " + str(len(found)) + " pest(s); BFS checked " + str(len(swept)) + " beds.")
+
+    def clean_pests(self):
+        root = self.grid.scan_tree()
+        found = [pos for pos in preorder(root) if self.grid.get(*divmod(pos, 5)).pest]
+        if not found:
+            self.note("The garden is clear—no bugs to clean.")
+            return
+        if not self.bag.has("Spray"):
+            self.note("Out of bug spray. Pick up a bottle at the market.")
+            return
+        self.remember("Cleaned garden pests")
+        self.bag.take("Spray")
+        cleaned = 0
+        for pos in postorder(root):
+            cell = self.grid.get(*divmod(pos, 5))
+            if cell.pest:
+                cell.pest = False
+                cleaned += 1
+        self.note("Post-order cleanup cleared " + str(cleaned) + " pesty bed(s).")
+
+    def advance_day(self):
+        context = {}
+        def weather_step(_):
+            self.weather = self.climate.advance()
+            if self.weather == "Rain":
+                self.bag.add("Water", min(15, 200 - self.bag.amount("Water")))
+                for _, cell in self.iter_cells():
+                    if cell.crop: cell.watered = True
+                self.note("Rain overnight! The beds are watered and the barrel caught some rain.")
+            else: self.note(WEATHER[self.weather]["note"])
+        def growth_step(_):
+            growing = 0
+            for _, cell in self.iter_cells():
+                if cell.crop and cell.watered:
+                    cell.growth = min(CROP_BOOK[cell.crop]["days"], cell.growth + 1)
+                    cell.watered = False
+                    growing += 1
+            if growing: self.note(str(growing) + " crop bed(s) grew with the morning light.")
+        def pest_step(_):
+            open_crops = [(r, c) for (r, c), cell in self.iter_cells() if cell.crop and not cell.pest]
+            if open_crops and random.random() < (0.38 if self.weather == "Breezy" else 0.22):
+                row, col = random.choice(open_crops)
+                self.grid.get(row, col).pest = True
+                self.note("A tiny bug landed on bed " + str(row * 5 + col + 1) + ". Try a pest scan!")
+        def sunrise(_):
+            self.day += 1
+        tree = ActionNode("Two-minute day transition", children=[
+            ActionNode("Climate branch", children=[ActionNode("Advance FIFO forecast", weather_step)]),
+            ActionNode("Crop branch", children=[ActionNode("Grow watered crops", growth_step)]),
+            ActionNode("Pest branch", children=[ActionNode("Check for garden pests", pest_step)]),
+            ActionNode("Sunrise branch", children=[ActionNode("Start the new day", sunrise)])
+        ])
+        run_action_tree(tree, context)
+        self.emit()
+
+    def iter_cells(self):
+        for r in range(5):
+            for c in range(5): yield (r, c), self.grid.get(r, c)
+
+world = GardenWorld(loadSavedState())
+
+def handle_plot(pos, action, crop): world.plot_action(int(pos), str(action), str(crop))
+def advance_day(): world.advance_day()
+def complete_order(order_id): world.complete_order(int(order_id))
+def buy_supply(item): world.buy_supply(str(item))
+def undo_action(): world.undo()
+</script>
+<script>
+const SAVE_KEY = 'gardenSanctuaryGame_v1';
+let pyodideInstance = null;
+let activeTool = 'Plant';
+let selectedCrop = 'Turnip';
+let dayStartedAt = Date.now();
+let lastPlots = [];
+let gameReady = false;
+
+function showToast(message) {
+  const box = document.getElementById('toast-container');
+  box.replaceChildren();
+  const item = document.createElement('div');
+  item.className = 'glass-panel toast max-w-sm px-5 py-3 text-amber-50 shadow-xl';
+  item.textContent = message;
+  box.appendChild(item);
+  setTimeout(() => { if (item.parentNode === box) item.remove(); }, 2400);
+}
+function switchTab(tab) {
+  document.getElementById('pane-farm').classList.toggle('active', tab === 'farm');
+  document.getElementById('pane-notebook').classList.toggle('active', tab === 'notebook');
+  document.getElementById('tab-farm').classList.toggle('active', tab === 'farm');
+  document.getElementById('tab-notebook').classList.toggle('active', tab === 'notebook');
+}
+function setTool(tool) {
+  activeTool = tool;
+  document.querySelectorAll('.tool-button').forEach(button => {
+    const chosen = button.dataset.tool === tool;
+    button.style.outline = chosen ? '3px solid #f4cf74' : 'none';
+    button.style.outlineOffset = chosen ? '2px' : '0';
+  });
+  const notes = {Plant:'Choose a crop, then tuck it into an empty bed.',Water:'Water a planted bed before daybreak.',Harvest:'Gather ripe crops for village orders.',Scan:'Use the tree traversal scan to find bugs.',Clean:'One spray bottle clears the garden with a post-order sweep.'};
+  document.getElementById('farm-subtitle').textContent = notes[tool] || 'Tend your patch.';
+}
+function setCrop(crop) { selectedCrop = crop; }
+function callPython(name, ...args) {
+  if (!pyodideInstance) { showToast('The Python garden is still waking up.'); return; }
+  const fn = pyodideInstance.globals.get(name);
+  if (!fn) { showToast('Python function not available: ' + name); return; }
+  try {
+    const result = fn(...args);
+    if (result && typeof result.then === 'function') result.catch(e => showToast('Garden error: ' + e.message));
+  } catch (e) { showToast('Garden error: ' + e.message); }
+  finally { if (fn.destroy) fn.destroy(); }
+}
+function clickPlot(pos) { callPython('handle_plot', pos, activeTool, selectedCrop); }
+function nextDay() {
+  if (!gameReady) return;
+  dayStartedAt = Date.now();
+  callPython('advance_day');
+}
+function completeOrder(id) { callPython('complete_order', id); }
+function buySupply(item) { callPython('buy_supply', item); }
+function undoAction() { callPython('undo_action'); }
+function renderState(json) {
+  const state = typeof json === 'string' ? JSON.parse(json) : json;
+  lastPlots = state.plots;
+  document.getElementById('day-counter').textContent = String(state.day).padStart(2,'0');
+  document.getElementById('level-counter').textContent = state.level;
+  const nextLevel = state.level + 1;
+  const threshold = state.xp_needed;
+  document.getElementById('next-level').textContent = nextLevel;
+  document.getElementById('xp-counter').textContent = `${state.xp} / ${threshold} XP`;
+  document.getElementById('xp-bar').style.width = `${Math.min(100, state.xp / threshold * 100)}%`;
+  const r = state.resources;
+  document.getElementById('water-label').textContent = `${r.Water} / 200`;
+  document.getElementById('water-bar').style.width = `${Math.min(100,r.Water/200*100)}%`;
+  document.getElementById('seeds-label').textContent = r.Seeds;
+  document.getElementById('seeds-bar').style.width = `${Math.min(100,r.Seeds/30*100)}%`;
+  document.getElementById('coins-label').textContent = r.Coins;
+  document.getElementById('coins-bar').style.width = `${Math.min(100,r.Coins/300*100)}%`;
+  document.getElementById('spray-label').textContent = r.Spray;
+  document.getElementById('spray-bar').style.width = `${Math.min(100,r.Spray/5*100)}%`;
+  renderProduce(r);
+  renderCrops(state.crops);
+  renderPlots(state.plots);
+  renderOrders(state.orders, r);
+  renderWeather(state);
+  renderJournal(state.journal);
+  const planted = state.planted;
+  document.getElementById('farm-subtitle').textContent = state.pests ? `${planted} beds growing · ${state.ripe} ready · ${state.pests} pest${state.pests===1?'':'s'} to clear` : `${planted} beds growing · ${state.ripe} ready to harvest`;
+  if (state.logs && state.logs.length) document.getElementById('farm-message').textContent = state.logs[0];
+  document.getElementById('engine-status').textContent = `Python engine: running · ${planted}/25 beds · ${state.pests} pests`;
+}
+function renderProduce(resources) {
+  const container = document.getElementById('produce-list');
+  container.replaceChildren();
+  const crops = [{name:'Turnip',emoji:'🥕'},{name:'Carrot',emoji:'🥕'},{name:'Berry',emoji:'🍓'},{name:'Sunflower',emoji:'🌻'},{name:'Pumpkin',emoji:'🎃'}];
+  crops.forEach(crop => {
+    const card = document.createElement('div');
+    card.className = 'parchment px-2 py-1 flex justify-between rounded text-sm';
+    const label = document.createElement('span'); label.textContent = `${crop.emoji} ${crop.name}`;
+    const count = document.createElement('b'); count.textContent = resources[crop.name] || 0;
+    card.append(label,count); container.appendChild(card);
+  });
+}
+function renderCrops(crops) {
+  const picker = document.getElementById('crop-picker');
+  const current = selectedCrop;
+  picker.replaceChildren();
+  crops.forEach(crop => {
+    const option = document.createElement('option');
+    option.value = crop.name;
+    option.textContent = `${crop.emoji} ${crop.name} · ${crop.seed_cost}c · ${crop.days} day${crop.days===1?'':'s'}` + (crop.unlocked ? '' : ` · Lv ${crop.unlock}`);
+    option.disabled = !crop.unlocked;
+    picker.appendChild(option);
+  });
+  const available = crops.find(c => c.name === current && c.unlocked) || crops.find(c => c.unlocked);
+  if (available) { picker.value = available.name; selectedCrop = available.name; }
+}
+function renderPlots(plots) {
+  const grid = document.getElementById('garden-grid');
+  const old = [...grid.children];
+  grid.replaceChildren();
+  plots.forEach((row,r) => row.forEach((cell,c) => {
+    const pos = r*5+c;
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'tile-soil aspect-square rounded-lg flex items-center justify-center text-2xl md:text-3xl cursor-pointer overflow-hidden';
+    button.setAttribute('aria-label', `Bed ${pos+1}${cell.crop ? ` ${cell.crop}, growth ${cell.growth}` : ', empty'}`);
+    const contents = document.createElement('span'); contents.className = 'relative z-10';
+    if (cell.crop) {
+      const crop = cell.crop;
+      const cfg = {Turnip:['🥕','🌱','🌿','🥕'],Carrot:['🥕','🌱','🌿','🥕'],Berry:['🍓','🌱','🌿','🍓'],Sunflower:['🌻','🌱','🌿','🌻'],Pumpkin:['🎃','🌱','🌿','🎃']}[crop] || ['🌱','🌱','🌿','🌼'];
+      const max = ({Turnip:1,Carrot:2,Berry:2,Sunflower:3,Pumpkin:3})[crop] || 2;
+      const stage = cell.growth >= max ? 3 : cell.growth === 0 ? 1 : 2;
+      contents.textContent = cfg[stage];
+      if (cell.growth >= max) button.classList.add('grow-wiggle');
+      button.title = `${crop} · ${cell.growth >= max ? 'ready to harvest' : `${max-cell.growth} day(s) to ripe`}`;
+    } else { contents.textContent = ''; button.title = 'Empty bed'; }
+    button.appendChild(contents);
+    const badge = document.createElement('span'); badge.className = 'absolute top-0.5 right-1 text-sm z-20';
+    if (cell.pest) { badge.textContent = '🐛'; button.title += ' · pest!'; }
+    else if (cell.watered) { badge.textContent = '💧'; button.title += ' · watered'; }
+    if (badge.textContent) button.appendChild(badge);
+    if (cell.crop && cell.growth >= (({Turnip:1,Carrot:2,Berry:2,Sunflower:3,Pumpkin:3})[cell.crop]||2)) {
+      const ready = document.createElement('span'); ready.className='absolute bottom-0 left-0 right-0 bg-amber-200 text-amber-950 text-[9px] leading-4 pixel-font'; ready.textContent='RIPE'; button.appendChild(ready);
+    }
+    button.addEventListener('click', () => clickPlot(pos));
+    if (cell.crop && (!old[pos] || old[pos].getAttribute('aria-label') !== button.getAttribute('aria-label'))) button.classList.add('plant-pop');
+    grid.appendChild(button);
+  }));
+}
+function renderOrders(orders, resources) {
+  const root = document.getElementById('orders-list'); root.replaceChildren();
+  orders.forEach(order => {
+    const card = document.createElement('div'); card.className = 'order-card p-3';
+    const title = document.createElement('div'); title.className = 'flex justify-between gap-2 items-center';
+    const name = document.createElement('b'); name.className = 'text-amber-200'; name.textContent = `${({Turnip:'🥕',Carrot:'🥕',Berry:'🍓',Sunflower:'🌻',Pumpkin:'🎃'})[order.crop]} ${order.crop}`;
+    const qty = document.createElement('span'); qty.className='text-emerald-100'; qty.textContent = `× ${order.quantity}`;
+    title.append(name,qty);
+    const reward = document.createElement('div'); reward.className='flex justify-between text-sm mt-2 text-amber-100'; reward.textContent=`🪙 ${order.coins} coins · ✨ ${order.xp} XP`;
+    const button = document.createElement('button'); button.className='pixel-btn w-full mt-3 rounded-lg bg-emerald-800 py-1.5 text-emerald-50'; button.textContent='📦 Send basket';
+    button.disabled = (resources[order.crop]||0) < order.quantity;
+    button.addEventListener('click', () => completeOrder(order.id));
+    card.append(title,reward,button); root.appendChild(card);
+  });
+}
+function renderWeather(state) {
+  const root = document.getElementById('climate-queue'); root.replaceChildren();
+  const items = [{name:state.weather, current:true}, ...state.forecast.slice(0,3).map(name => ({name,current:false}))];
+  items.forEach(item => {
+    const cfg = state.weather_info;
+    const icon = ({Sunny:'☀️',Rain:'🌧️',Cloudy:'☁️',Breezy:'🍃'})[item.name] || '🌤️';
+    const card = document.createElement('div'); card.className='bg-amber-950/40 border border-amber-900 rounded-lg p-2.5 flex gap-3 items-center';
+    const symbol = document.createElement('span'); symbol.className='text-2xl'; symbol.textContent=icon;
+    const text = document.createElement('div');
+    const label = document.createElement('div'); label.className='text-amber-300 font-bold'; label.textContent=`${item.current?'TODAY':'QUEUED'} · ${item.name}`;
+    const detail = document.createElement('div'); detail.className='text-emerald-200/70 text-sm'; detail.textContent=item.current?cfg.note:(item.name==='Rain'?'Rain waters planted beds':'In the FIFO forecast');
+    text.append(label,detail); card.append(symbol,text); root.appendChild(card);
+  });
+}
+function renderJournal(labels) {
+  const root=document.getElementById('action-stack'); root.replaceChildren();
+  if(!labels.length){const empty=document.createElement('div');empty.className='text-emerald-100/50';empty.textContent='Your first farm chore will appear here.';root.appendChild(empty);return;}
+  labels.forEach(label=>{const item=document.createElement('div');item.className='bg-emerald-950/60 border-l-2 border-amber-500 px-3 py-1.5 rounded text-emerald-100 text-sm';item.textContent='→ '+label;root.appendChild(item);});
+}
+function updateTimer() {
+  if (!gameReady) return;
+  const elapsed = Date.now()-dayStartedAt;
+  const left = Math.max(0,120000-elapsed);
+  const sec = Math.ceil(left/1000);
+  const text = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  document.getElementById('day-timer').textContent=text;
+  document.getElementById('daylight-caption').textContent=text+' remaining';
+  document.getElementById('daylight-bar').style.width=`${Math.min(100,elapsed/120000*100)}%`;
+  if (left===0) nextDay();
+}
+function persistState(json) { try { localStorage.setItem(SAVE_KEY,json); } catch (_) {} }
+function loadSavedState() { try { return localStorage.getItem(SAVE_KEY)||''; } catch (_) { return ''; } }
+function callShowNote(message) { showToast(String(message)); }
+async function startEngine(code) {
+  const status=document.getElementById('notebook-status');
+  status.textContent='Starting Python…';
+  const py=await loadPyodide();
+  py.globals.set('renderState',renderState);
+  py.globals.set('persistState',persistState);
+  py.globals.set('loadSavedState',loadSavedState);
+  py.globals.set('showNote',callShowNote);
+  await py.runPythonAsync(code);
+  pyodideInstance=py;
+  gameReady=true;
+  dayStartedAt=Date.now();
+  document.getElementById('engine-status').textContent='Python engine: running';
+  status.textContent='Engine is running. Editing and restarting resets the garden; your current progress is saved separately.';
+  document.getElementById('boot-overlay').style.display='none';
+  setTool(activeTool);
+  if(window.lucide) lucide.createIcons();
+}
+async function resetPythonEngine() {
+  if (!confirm('Restart the Python engine and begin a fresh garden? This replaces the saved farm on this device.')) return;
+  localStorage.removeItem(SAVE_KEY);
+  gameReady=false; dayStartedAt=Date.now();
+  try {
+    const source = document.getElementById('python-editor').value;
+    if (pyodideInstance) {
+      document.getElementById('notebook-status').textContent='Running your Python engine…';
+      await pyodideInstance.runPythonAsync(source);
+      gameReady=true;
+      dayStartedAt=Date.now();
+      setTool(activeTool);
+      document.getElementById('notebook-status').textContent='Your Python engine is running. The garden starts fresh with this version.';
+    } else {
+      await startEngine(source);
+    }
+  } catch (error) {
+    document.getElementById('notebook-status').textContent='Engine error: '+error.message;
+    showToast('Python engine could not restart.');
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  if(window.lucide) lucide.createIcons();
+  const source=document.getElementById('python-game').textContent.trim();
+  document.getElementById('python-editor').value=source;
+  document.getElementById('boot-status').textContent='Loading Python and planting the first seeds…';
+  startEngine(source).catch(error=>{
+    document.getElementById('boot-status').textContent='Could not load the garden engine: '+error.message+'. Check your internet connection and reload.';
+    document.getElementById('engine-status').textContent='Python engine: offline';
+  });
+  setInterval(updateTimer,250);
+});
+</script>
+</body>
+</html>

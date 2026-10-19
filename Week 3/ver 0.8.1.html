@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Garden Sanctuary v1.3 — Data Structure Comments</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&family=JetBrains+Mono:wght@400;500;700&display=swap');
+:root{--night:#1b2417;--forest:#2b3a24;--wood:#4a3a28;--wood2:#3a2d1e;--trim:#8a6a3d;--paper:#e8d5a8;--ink:#3a2d1e;--mint:#a9d6a2;--gold:#f4cf74;--soil:#5c4326;--soil2:#543c22}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:linear-gradient(180deg,#2b3a24 0%,#1b2417 100%);color:#f0ead6;font-family:'VT323',monospace;font-size:20px;image-rendering:pixelated}
+.pixel-font{font-family:'Press Start 2P',monospace;letter-spacing:.2px}.code-font{font-family:'JetBrains Mono',monospace;font-size:12px}
+.glass-panel{background:linear-gradient(180deg,#4a3a28 0%,#3a2d1e 100%);border:3px solid #8a6a3d;border-radius:10px;box-shadow:inset 0 0 0 2px #2a2013,0 6px 0 rgba(0,0,0,.35)}
+.parchment{background:#e8d5a8;color:#3a2d1e;border:2px solid #8a6a3d;border-radius:6px}
+.pixel-btn{border:2px solid #1a2e15;box-shadow:0 4px 0 #1a2e15;transition:transform .08s,box-shadow .08s,filter .15s}.pixel-btn:hover{filter:brightness(1.12)}.pixel-btn:active{transform:translateY(4px);box-shadow:0 0 0 #1a2e15}.pixel-btn:disabled{opacity:.45;filter:grayscale(1);cursor:not-allowed}
+.tile-soil{position:relative;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,.06) 0,transparent 40%),repeating-linear-gradient(45deg,#5c4326 0 6px,#543c22 6px 12px);border:2px solid #3a2b16;box-shadow:inset 0 0 0 2px rgba(211,168,102,.08);transition:filter .12s,transform .12s}.tile-soil:hover{filter:brightness(1.22);transform:translateY(-2px)}
+.plant-pop{animation:plant-pop .32s ease-out}@keyframes plant-pop{0%{transform:scale(.2) rotate(-8deg);opacity:0}65%{transform:scale(1.2) rotate(3deg);opacity:1}100%{transform:scale(1);opacity:1}}
+.sparkle{position:fixed;pointer-events:none;z-index:80;font-size:20px;animation:sparkle-float .8s ease-out forwards}@keyframes sparkle-float{to{transform:translateY(-45px) scale(.4);opacity:0}}
+.grow-wiggle{animation:grow-wiggle .5s ease-out}@keyframes grow-wiggle{0%{transform:scale(.7)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.bst-scroll{overflow:auto;padding:12px 4px;min-height:170px}.bst-tree{display:flex;justify-content:center;min-width:max-content}.bst-branch{display:flex;flex-direction:column;align-items:center}.bst-node-card{min-width:150px;max-width:190px;background:#2b2419;border:2px solid #9a7441;border-radius:9px;padding:9px;box-shadow:0 3px 0 #17120c;text-align:center}.bst-node-card.fish-node{border-color:#5c9aaa}.bst-node-card.bird-node{border-color:#c49559}.bst-node-title{font-family:'Press Start 2P',monospace;font-size:8px;color:#f4cf74}.bst-children{display:flex;gap:8px;position:relative;padding-top:18px}.bst-children:before{content:'';position:absolute;top:0;left:25%;right:25%;border-top:2px solid #9a7441}.bst-slot{display:flex;justify-content:center;position:relative;padding-top:12px;min-width:158px}.bst-slot:before{content:'';position:absolute;top:0;height:12px;border-left:2px solid #9a7441}.bst-empty{width:150px;height:20px;border-top:1px dashed #806541;opacity:.35}.animal-health{height:7px;background:#151b12;border:1px solid #76613a;border-radius:8px;overflow:hidden}.animal-health-fill{height:100%;transition:width .25s}.animal-action{font-size:14px;line-height:1.1}
+.tab-pane{display:none}.tab-pane.active{display:block}.tab-button.active{background:#80551e!important;color:#fff5d7!important}
+.progress-track{height:9px;background:#171e15;border:1px solid #7c6037;border-radius:99px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#69b965,#b7df6a);transition:width .25s}
+.resource-row{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}.order-card{background:rgba(80,48,20,.68);border:1px solid #8a5a28;border-radius:10px}.toast{animation:toast-in .2s ease-out}@keyframes toast-in{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+#boot-overlay{position:fixed;inset:0;z-index:100;background:rgba(14,21,13,.88);display:flex;align-items:center;justify-content:center;padding:20px}.loader-card{width:min(480px,94vw);text-align:center;padding:32px}
+@media(max-width:1000px){.game-layout{grid-template-columns:1fr!important}.farm-area{order:1}.storage-area{order:2}.town-area{order:3}}
+@media(max-width:520px){body{font-size:18px}.farm-shell{padding:12px!important}.farm-grid{gap:5px!important;padding:7px!important}.farm-grid button{border-radius:5px!important}.top-stats{gap:5px!important}.top-stat{padding:8px!important}.top-stat .pixel-font{font-size:8px!important}.tool-row{grid-template-columns:repeat(3,minmax(0,1fr))!important}}
+</style>
+</head>
+<body class="min-h-screen p-3 md:p-5">
+<div id="boot-overlay"><div class="glass-panel loader-card"><div class="text-5xl mb-4">🌱</div><h1 class="pixel-font text-amber-200 text-xs leading-7">GARDEN SANCTUARY</h1><p id="boot-status" class="text-emerald-200 mt-5">Waking up the garden…</p><div class="progress-track mt-5"><div class="progress-fill" style="width:30%"></div></div><p class="text-xs text-emerald-100/60 mt-4">The Python garden engine is loading in your browser.</p></div></div>
+<div class="max-w-[1500px] mx-auto">
+<header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-4 pb-3 border-b border-emerald-100/15">
+  <div><div class="flex items-center gap-3"><span class="text-3xl">🌾</span><h1 class="pixel-font text-amber-200 text-sm md:text-base drop-shadow-[2px_2px_0_rgba(0,0,0,.6)]">Garden Sanctuary · Farm Update</h1></div><p class="text-emerald-200/80 text-lg ml-11">Grow crops, raise fish and poultry, and share the harvest with the village.</p></div>
+  <div class="flex flex-wrap items-center gap-2 top-stats">
+    <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">DAY</span><div id="day-counter" class="pixel-font text-sm text-white mt-1">01</div></div>
+    <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">LEVEL</span><div id="level-counter" class="pixel-font text-sm text-emerald-300 mt-1">1</div></div>
+    <div class="glass-panel top-stat px-4 py-2 min-w-40"><div class="flex justify-between gap-4 text-sm"><span class="text-amber-200">GROWING TO LEVEL <b id="next-level">2</b></span><span id="xp-counter">0 / 30 XP</span></div><div class="progress-track mt-1"><div id="xp-bar" class="progress-fill" style="width:0%"></div></div></div>
+    <button id="next-day-button" onclick="nextDay()" class="pixel-btn rounded-lg bg-emerald-800 px-4 py-3 text-emerald-50"><span class="text-xl">☀</span> Next day <span id="day-timer" class="text-amber-200">02:00</span></button>
+  </div>
+</header>
+<nav class="flex flex-wrap gap-2 mb-4"><button id="tab-farm" onclick="switchTab('farm')" class="pixel-btn tab-button active pixel-font text-[9px] px-4 py-3 rounded-lg bg-amber-800 text-amber-50">🏡 The Farm</button><button id="tab-animals" onclick="switchTab('animals')" class="pixel-btn tab-button pixel-font text-[9px] px-4 py-3 rounded-lg bg-[#33452e] text-emerald-200">🐟 Ponds & Coops</button><button id="tab-notebook" onclick="switchTab('notebook')" class="pixel-btn tab-button pixel-font text-[9px] px-4 py-3 rounded-lg bg-[#33452e] text-emerald-200">📜 Field Notebook</button><span id="engine-status" class="ml-auto text-emerald-200/70 self-center text-sm">Python engine: starting</span></nav>
+<div id="pane-farm" class="tab-pane active">
+<main class="game-layout grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+  <aside class="storage-area lg:col-span-3 flex flex-col gap-4">
+    <section class="glass-panel p-4">
+      <h2 class="pixel-font text-[10px] text-amber-200 border-b-2 border-amber-800/60 pb-3 mb-4 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-400"></i> The Granary</h2>
+      <div class="space-y-4">
+        <div><div class="resource-row text-sm mb-1"><span class="text-blue-200">💧 Water</span><span id="water-label">200 / 200</span></div><div class="progress-track"><div id="water-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-300" style="width:45%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-lime-200">🌰 Seeds</span><span id="seeds-label">90 / 100</span></div><div class="progress-track"><div id="seeds-bar" class="h-full bg-gradient-to-r from-emerald-500 to-lime-300" style="width:90%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-amber-200">⚡ Energy</span><span id="energy-label">110 / 110</span></div><div class="progress-track"><div id="energy-bar" class="h-full bg-gradient-to-r from-yellow-500 to-amber-300" style="width:100%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-pink-200">💚 Hope</span><span id="hope-label">80 / 100</span></div><div class="progress-track"><div id="hope-bar" class="h-full bg-gradient-to-r from-pink-500 to-rose-300" style="width:80%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-amber-200">🪙 Coins</span><span id="coins-label">999</span></div><div class="progress-track"><div id="coins-bar" class="h-full bg-gradient-to-r from-amber-500 to-yellow-300" style="width:100%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-rose-200">🧴 Bug spray</span><span id="spray-label">3</span></div><div class="progress-track"><div id="spray-bar" class="h-full bg-gradient-to-r from-rose-500 to-pink-300" style="width:60%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-orange-200">🌾 Animal feed</span><span id="feed-label">8</span></div><div class="progress-track"><div id="feed-bar" class="h-full bg-gradient-to-r from-orange-500 to-amber-300" style="width:70%"></div></div></div>
+        <div><div class="resource-row text-sm mb-1"><span class="text-pink-200">💉 Vaccine</span><span id="vaccine-label">4</span></div><div class="progress-track"><div id="vaccine-bar" class="h-full bg-gradient-to-r from-pink-500 to-rose-300" style="width:80%"></div></div></div>
+      </div>
+      <div class="mt-5 pt-3 border-t border-amber-800/60"><h3 class="pixel-font text-[8px] text-amber-200 mb-3">HARVEST BASKET</h3><div id="produce-list" class="grid grid-cols-2 gap-2 text-sm"></div></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-[9px] text-amber-300 mb-3 flex items-center gap-2">🛒 Village Market</h3>
+      <div class="grid grid-cols-1 gap-2"><button onclick="buySupply('seeds')" class="pixel-btn rounded-lg bg-[#6b5228] px-3 py-2 text-left text-amber-50 text-sm">🌰 10 seeds <span class="float-right text-amber-200">35 coins</span></button><button onclick="buySupply('water')" class="pixel-btn rounded-lg bg-[#345766] px-3 py-2 text-left text-blue-50 text-sm">💧 30 water <span class="float-right text-blue-200">20 coins</span></button><button onclick="buySupply('spray')" class="pixel-btn rounded-lg bg-[#68413e] px-3 py-2 text-left text-rose-50 text-sm">🧴 2 bug spray <span class="float-right text-rose-200">18 coins</span></button><button onclick="buySupply('feed')" class="pixel-btn rounded-lg bg-[#73512a] px-3 py-2 text-left text-orange-50 text-sm">🌾 6 animal feed <span class="float-right text-orange-200">16 coins</span></button><button onclick="buySupply('vaccine')" class="pixel-btn rounded-lg bg-[#68424f] px-3 py-2 text-left text-pink-50 text-sm">💉 3 vaccine doses <span class="float-right text-pink-200">21 coins</span></button></div>
+      <p class="text-emerald-100/60 text-xs mt-3">Seed costs follow the plant dropdown. Water, energy, hope, and coins update as you tend the farm.</p>
+    </section>
+  </aside>
+  <section class="farm-area lg:col-span-6 flex flex-col gap-4">
+    <div class="glass-panel farm-shell p-5 md:p-6">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-4">
+        <div><h2 class="pixel-font text-amber-200 text-[10px]">Your Patch</h2><p id="farm-subtitle" class="text-emerald-200 text-lg mt-1">The soil is ready for your first seed.</p></div>
+        <div class="flex flex-wrap items-center gap-2"><label for="crop-picker" class="text-emerald-200">Plant:</label><select id="crop-picker" class="parchment px-2 py-1 text-base font-semibold max-w-48" onchange="setCrop(this.value)"></select></div>
+      </div>
+      <div id="garden-grid" class="farm-grid grid grid-cols-5 gap-2 p-3 rounded-xl bg-[#26351e] border-2 border-[#172111]"></div>
+      <div class="mt-4 flex flex-col gap-2"><div class="flex items-center justify-between text-sm"><span class="text-emerald-200">Daylight until tomorrow</span><span id="daylight-caption">02:00 remaining</span></div><div class="progress-track h-3"><div id="daylight-bar" class="progress-fill bg-gradient-to-r from-amber-400 to-orange-300" style="width:0%"></div></div></div>
+    </div>
+    <section class="glass-panel p-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3"><h3 class="pixel-font text-amber-200 text-[9px]">Choose your chore</h3><span class="text-emerald-100/60 text-sm">Plant · tend · harvest</span></div>
+      <div class="tool-row grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <button data-tool="Plant" onclick="setTool('Plant')" class="pixel-btn tool-button rounded-lg bg-amber-700 py-2 text-amber-50">🌱<br>Plant</button>
+        <button data-tool="Water" onclick="setTool('Water')" class="pixel-btn tool-button rounded-lg bg-blue-800 py-2 text-blue-50">💧<br>Water</button>
+        <button data-tool="Harvest" onclick="setTool('Harvest')" class="pixel-btn tool-button rounded-lg bg-emerald-800 py-2 text-emerald-50">🧺<br>Harvest</button>
+        <button data-tool="Scan" onclick="setTool('Scan')" class="pixel-btn tool-button rounded-lg bg-violet-900 py-2 text-violet-50">🔎<br>Bug scan</button>
+        <button data-tool="Clean" onclick="setTool('Clean')" class="pixel-btn tool-button rounded-lg bg-rose-900 py-2 text-rose-50">🧹<br>Clean</button>
+        <button id="undo-button" aria-label="Undo last garden action" onclick="undoAction()" class="pixel-btn rounded-lg bg-[#3a2d1e] py-2 text-amber-100">↶<br>Undo</button>
+      </div>
+    </section>
+    <section class="glass-panel p-4"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">A NOTE FROM THE FARM</h3><p id="farm-message" class="text-emerald-100">Loading your garden journal…</p></section>
+  </section>
+  <aside class="town-area lg:col-span-3 flex flex-col gap-4">
+    <section class="glass-panel p-4">
+      <h2 class="pixel-font text-amber-200 text-[9px] flex items-center gap-2 mb-3"><i data-lucide="truck" class="w-4 h-4 text-amber-400"></i> Village Orders</h2>
+      <p class="text-emerald-100/70 text-sm mb-3">Fill a neighbor's basket for coins and experience.</p>
+      <div id="orders-list" class="space-y-3"></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-amber-300 text-[9px] mb-3 flex items-center gap-2">☁ Weather Queue <span class="text-emerald-200/60 normal-case">FIFO</span></h3>
+      <div id="climate-queue" class="space-y-2"></div>
+    </section>
+    <section class="glass-panel p-4">
+      <h3 class="pixel-font text-amber-300 text-[9px] mb-3 flex items-center gap-2">📚 Deed Stack <span class="text-emerald-200/60 normal-case">LIFO</span></h3>
+      <div id="action-stack" class="space-y-2 text-sm"><div class="text-emerald-100/50">Your first farm chore will appear here.</div></div>
+    </section>
+  </aside>
+</main>
+</div>
+<div id="pane-animals" class="tab-pane">
+  <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 items-start">
+    <section class="glass-panel p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3"><div><h2 class="pixel-font text-cyan-200 text-[10px]">🐟 Bluebell Fish Pond</h2><p class="text-emerald-100 mt-2">A self-balancing BST keyed by growth-stage rank. Feed fish to mutate health; harvest market-size fish to delete and rebalance a node.</p></div><div class="parchment px-3 py-2 text-sm">🐟 Stock: <b id="fish-count">0</b> / 8</div></div>
+      <div class="mt-4 flex flex-wrap gap-2"><button onclick="buyAnimal('fish')" class="pixel-btn rounded-lg bg-cyan-800 px-4 py-2 text-cyan-50">＋ Add fingerling · 18 coins</button><span class="self-center text-cyan-100/70 text-sm">Key: (stage rank, fish ID)</span></div>
+      <div class="mt-4 border-t border-cyan-900/70 pt-3"><div class="pixel-font text-[8px] text-cyan-200 mb-2">POND AVL TREE · IN-ORDER SHAPE</div><div id="fish-tree-view" class="bst-scroll rounded-lg bg-[#172c30]/70"></div></div>
+      <div class="mt-3 text-emerald-100/70 text-sm">Fingerling → Juvenile → Market-size. Fish age at daybreak. Feed raises health; harvesting a market-size fish removes its node and AVL rotations keep the pond tree balanced.</div>
+    </section>
+    <section class="glass-panel p-5">
+      <div class="flex flex-wrap items-start justify-between gap-3"><div><h2 class="pixel-font text-amber-200 text-[10px]">🐔 Clover Coop</h2><p class="text-emerald-100 mt-2">A second balanced BST keyed by age in days. Feeding and vaccination update each bird's health value without changing its key.</p></div><div class="parchment px-3 py-2 text-sm">🐔 Flock: <b id="poultry-count">0</b> / 8</div></div>
+      <div class="mt-4 flex flex-wrap gap-2"><button onclick="buyAnimal('poultry')" class="pixel-btn rounded-lg bg-amber-800 px-4 py-2 text-amber-50">＋ Add chick · 14 coins</button><span class="self-center text-amber-100/70 text-sm">Key: (age in days, bird ID)</span></div>
+      <div class="mt-4 border-t border-amber-900/70 pt-3"><div class="pixel-font text-[8px] text-amber-200 mb-2">COOP AVL TREE · IN-ORDER SHAPE</div><div id="poultry-tree-view" class="bst-scroll rounded-lg bg-[#302417]/70"></div></div>
+      <div class="mt-3 text-emerald-100/70 text-sm">Chick → Pullet → Layer. Layers lay eggs at daybreak. Harvesting a layer yields poultry and deletes its node; each deletion rebalances the tree.</div>
+    </section>
+  </div>
+  <section class="glass-panel p-4 mt-4"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">NODE MUTATION</h3><p class="text-emerald-100">Select <b>Feed</b> on a fish or bird to increase its health value. Vaccinate poultry to boost health and reduce its next daybreak loss. Health is stored in the BST node; it is not part of the ordering key, so changing it mutates node data while preserving the search-tree ordering. Harvest removes a mature node, then AVL rotations restore balance.</p></section>
+</div>
+<div id="pane-notebook" class="tab-pane">
+  <div class="grid grid-cols-1 xl:grid-cols-12 gap-4">
+    <section class="xl:col-span-8 glass-panel p-5">
+      <div class="flex flex-wrap justify-between items-center gap-3"><div><h2 class="pixel-font text-amber-200 text-[10px]">Field Notebook · Python Engine</h2><p class="text-emerald-200 mt-2">The farm runs on Python data structures. Each engine section is commented with its structure type. Peek inside, experiment, then run your version.</p></div><button onclick="resetPythonEngine()" class="pixel-btn rounded-lg bg-amber-700 px-4 py-2 text-amber-50">▶ Run / restart engine</button></div>
+      <p id="notebook-status" class="text-emerald-300 text-sm mt-3">Engine starts automatically when the game opens. Running changed code restarts the farm and replaces its current save.</p>
+      <textarea id="python-editor" spellcheck="false" class="code-font w-full h-[68vh] min-h-[460px] mt-3 resize-y bg-[#0a0f0a] text-emerald-100 border-2 border-emerald-800 rounded-xl p-4 leading-relaxed"></textarea>
+    </section>
+    <aside class="xl:col-span-4 flex flex-col gap-4">
+      <section class="glass-panel p-5"><h3 class="pixel-font text-amber-300 text-[9px] mb-3">GARDEN ALGORITHMS</h3><div class="space-y-3 text-emerald-100"><p><b class="text-amber-200">OOP:</b> Plant, ResourceBag, and animal classes model game objects and their data.</p><p><b class="text-amber-200">Stack:</b> farm chores save snapshots; Undo pops and restores the latest one.</p><p><b class="text-amber-200">Queue:</b> the oldest climate forecast is removed first; a new forecast joins the back.</p><p><b class="text-amber-200">2D Grid:</b> the 5×5 farm stores each Plant object in a row-and-column cell.</p><p><b class="text-amber-200">Hierarchical Trees:</b> watering, harvesting, and daybreak run through parent/child action nodes.</p><p><b class="text-amber-200">Tree Traversals:</b> BFS (level-order); DFS (preorder for pest detection, inorder for sorted BST visits, postorder for cleanup).</p><p><b class="text-amber-200">Binary Search:</b> fish and poultry BSTs compare keys and search left or right; AVL rotations keep the trees balanced.</p></div></section>
+      <section class="glass-panel p-5"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">HOW TO PLAY</h3><ol class="list-decimal pl-5 text-emerald-100 space-y-1"><li>Choose Eggplant, Apples, Banana, Melon, or Pineapple and plant an empty bed.</li><li>Water it, then wait for daybreak.</li><li>Harvest mature crops into your basket.</li><li>Complete village orders for coins and XP.</li><li>Buy supplies, tend pests, and grow your farm reputation.</li></ol><p class="text-emerald-100/60 text-sm mt-3">A day ends every 2 minutes. You can also tap Next day to keep the garden moving.</p></section>
+    </aside>
+  </div>
+</div>
+<footer class="text-center text-emerald-100/45 text-sm mt-5 pb-3">A cozy little farm prototype · Python runs locally in your browser via Pyodide · progress saves on this device</footer>
+</div>
+<div id="toast-container" class="fixed bottom-5 right-5 z-[120] flex flex-col gap-2 pointer-events-none"></div>
+
+<script type="text/plain" id="python-game">
+from collections import deque
+from copy import deepcopy
+import json
+import random
+
+# DATA STRUCTURES USED IN THIS GAME (project list):
+# OOP — Plant, ResourceBag, FarmCell, and animal objects.
+# Stack — ActionHistoryStack stores undo snapshots in LIFO order.
+# Queue — ClimateQueue rotates forecasts in FIFO order.
+# 2D Grid — FarmGrid.cells stores the 5x5 plots by row and column.
+# Hierarchical Trees — ActionNode organizes multi-step watering, harvest, and daybreak logic.
+# Tree Traversals — BFS (level-order); DFS (preorder, inorder, and postorder).
+# Binary Search — fish and poultry BST search compares keys and branches left/right.
+
+# DATA STRUCTURE: dictionaries (hash maps) provide O(1)-average lookup for crop and product metadata.
+CROP_BOOK = {
+    "Eggplant": {"emoji": "🍆", "seed_cost": 20, "water_need": 14, "days": 2, "yield": 3, "sell": 34, "unlock": 1},
+    "Apples": {"emoji": "🍎", "seed_cost": 50, "water_need": 20, "days": 4, "yield": 2, "sell": 72, "unlock": 1},
+    "Banana": {"emoji": "🍌", "seed_cost": 10, "water_need": 10, "days": 2, "yield": 4, "sell": 20, "unlock": 1},
+    "Melon": {"emoji": "🍈", "seed_cost": 30, "water_need": 18, "days": 3, "yield": 2, "sell": 52, "unlock": 1},
+    "Pineapple": {"emoji": "🍍", "seed_cost": 70, "water_need": 24, "days": 4, "yield": 2, "sell": 108, "unlock": 1},
+    # Compatibility entries let older saved beds/orders finish safely; these are not shown in the new seed dropdown.
+    "Carrot": {"emoji": "🥕", "seed_cost": 7, "water_need": 10, "days": 2, "yield": 3, "sell": 12, "unlock": 1},
+    "Berry": {"emoji": "🍓", "seed_cost": 10, "water_need": 12, "days": 2, "yield": 3, "sell": 17, "unlock": 1},
+    "Sunflower": {"emoji": "🌻", "seed_cost": 12, "water_need": 14, "days": 3, "yield": 2, "sell": 24, "unlock": 1},
+    "Pumpkin": {"emoji": "🎃", "seed_cost": 16, "water_need": 18, "days": 3, "yield": 2, "sell": 32, "unlock": 1},
+}
+PLANT_DROPDOWN = [
+    ("Eggplant", "🍆", 20),
+    ("Apples", "🍎", 50),
+    ("Banana", "🍌", 10),
+    ("Melon", "🍈", 30),
+    ("Pineapple", "🍍", 70),
+]
+LEGACY_CROPS = {"Turnip": "Banana", "Carrot": "Eggplant", "Berry": "Apples", "Sunflower": "Melon", "Pumpkin": "Pineapple"}
+PRODUCT_BOOK = {"Fish": {"emoji": "🐟", "sell": 28}, "Eggs": {"emoji": "🥚", "sell": 9}, "Poultry": {"emoji": "🍗", "sell": 36}}
+
+def addPlantsToDropdown(items):
+    """Build UI options from (name, emoji, seed-cost) tuples."""
+    options = []
+    for name, emoji, cost in items:
+        metadata = CROP_BOOK[name]
+        options.append({"name": name, "emoji": emoji, "seed_cost": cost,
+                        "water_need": metadata["water_need"], "days": metadata["days"],
+                        "yield": metadata["yield"], "sell": metadata["sell"],
+                        "unlock": metadata["unlock"], "unlocked": True})
+    return options
+WEATHER = {
+    "Sunny": {"icon": "☀️", "note": "A bright day for the patch."},
+    "Rain": {"icon": "🌧️", "note": "Rain waters every planted bed."},
+    "Cloudy": {"icon": "☁️", "note": "Soft clouds roll over the village."},
+    "Breezy": {"icon": "🍃", "note": "A gentle breeze, and maybe a few bugs."},
+}
+
+# OOP: ResourceBag is an object representing inventory; its items use a dictionary/hash map.
+class ResourceBag:
+    def __init__(self, items=None):
+        # DATA STRUCTURE: a dictionary/hash map stores named resources for average O(1) lookup/update.
+        defaults = {"Seeds": 90, "Water": 200, "Energy": 110, "Hope": 80, "Coins": 999,
+                    "Spray": 3, "Feed": 8, "Vaccine": 4,
+                    "Eggplant": 0, "Apples": 0, "Banana": 0, "Melon": 0, "Pineapple": 0,
+                    Carrot": 0, "Berry": 0, "Sunflower": 0, "Pumpkin": 0,
+                    "Fish": 0, "Eggs": 0, "Poultry": 0}
+        self.items = dict(defaults)
+        if items:
+            self.items.update(items)
+            # Merge resources added in this version into saves made by the earlier game.
+            for old_name, new_name in LEGACY_CROPS.items():
+                self.items[new_name] = self.items.get(new_name, 0) + self.items.get(old_name, 0)
+                self.items[old_name] = 0
+            self.items.setdefault("Energy", 110)
+            self.items.setdefault("Hope", 80)
+    def amount(self, item): return self.items.get(item, 0)
+    def has(self, item, quantity=1): return self.amount(item) >= quantity
+    def take(self, item, quantity=1):
+        if not self.has(item, quantity): return False
+        self.items[item] -= quantity
+        return True
+    def add(self, item, quantity=1):
+        caps = {"Water": 200, "Energy": 110, "Hope": 100}
+        self.items[item] = min(caps[item], self.amount(item) + quantity) if item in caps else self.amount(item) + quantity
+    def snapshot(self): return dict(self.items)
+
+# OOP: Plant is an object with name, water_need, and health attributes.
+class Plant:
+    def __init__(self, name, water_need):
+        self.name = name
+        self.water_need = water_need
+        self.health = 100
+
+# OOP + 2D Grid: each FarmCell object is stored at one row/column in the farm grid.
+class FarmCell:
+    def __init__(self, crop=None, growth=0, watered=False, pest=False, health=100, water_need=None):
+        self.plant = None
+        self.crop = crop
+        if self.plant and health != 100: self.plant.health = health
+        if self.plant and water_need is not None: self.plant.water_need = water_need
+        self.growth, self.watered, self.pest = growth, watered, pest
+
+    @property
+    def crop(self): return self.plant.name if self.plant else None
+
+    @crop.setter
+    def crop(self, name):
+        self.plant = Plant(name, CROP_BOOK[name]["water_need"]) if name else None
+
+    @property
+    def health(self): return self.plant.health if self.plant else 0
+
+    @health.setter
+    def health(self, value):
+        if self.plant: self.plant.health = max(0, min(100, int(value)))
+
+    def to_dict(self):
+        return {"crop": self.crop, "growth": self.growth, "watered": self.watered,
+                "pest": self.pest, "health": self.health,
+                "water_need": self.plant.water_need if self.plant else 0}
+
+# 2D Grid: FarmGrid.cells is a list of lists, addressed as cells[row][column].
+class FarmGrid:
+    def __init__(self, rows=5, cols=5):
+        self.rows, self.cols = rows, cols
+        self.cells = [[FarmCell() for _ in range(cols)] for _ in range(rows)]
+    def get(self, row, col): return self.cells[row][col]
+    def coords(self):
+        for row in range(self.rows):
+            for col in range(self.cols): yield row, col
+    def scan_tree(self):
+        coords = list(self.coords())
+        def build(lo, hi):
+            if lo >= hi: return None
+            mid = (lo + hi) // 2
+            node = ScanNode(mid)
+            node.left, node.right = build(lo, mid), build(mid + 1, hi)
+            return node
+        return build(0, len(coords))
+
+# Stack: a Python list used as LIFO; append pushes and pop undoes the latest action.
+class ActionHistoryStack:
+    def __init__(self): self.items = []
+    def push(self, snapshot, label): self.items.append((snapshot, label))
+    def pop(self): return self.items.pop() if self.items else None
+    def labels(self): return [item[1] for item in reversed(self.items[-6:])]
+
+# Queue: collections.deque implements FIFO climate using popleft and append.
+class ClimateQueue:
+    def __init__(self, items=None): self.items = deque(items or ["Rain", "Cloudy", "Sunny", "Breezy"])
+    def peek(self): return list(self.items)
+    def advance(self):
+        today = self.items.popleft()
+        self.items.append(random.choice(list(WEATHER)))
+        return today
+
+# Hierarchical Trees: ActionNode is a parent/child node in an n-ary action tree.
+class ActionNode:
+    def __init__(self, name, action=None, children=None):
+        self.name, self.action, self.children = name, action, children or []
+
+# Hierarchical Trees: recursive DFS visits child actions under their parent action node.
+def run_action_tree(node, context):
+    if node.action and node.action(context) is False: return False
+    for child in node.children:
+        if not run_action_tree(child, context): return False
+    return True
+
+# DATA STRUCTURE: binary-tree node used to organize farm-cell traversal.
+class ScanNode:
+    def __init__(self, value): self.value, self.left, self.right = value, None, None
+
+# Tree Traversals — DFS Preorder: visit node, left, right; used for pest detection.
+def preorder(node):
+    if node is not None:
+        yield node.value
+        yield from preorder(node.left)
+        yield from preorder(node.right)
+
+# Tree Traversals — BFS (level-order): visit each tree level using a FIFO queue/deque.
+def level_order(root):
+    queue = deque([root] if root else [])
+    while queue:
+        node = queue.popleft()
+        yield node.value
+        if node.left: queue.append(node.left)
+        if node.right: queue.append(node.right)
+
+# Tree Traversals — DFS Postorder: visit left, right, node; used for pest cleanup.
+def postorder(node):
+    if node is not None:
+        yield from postorder(node.left)
+        yield from postorder(node.right)
+        yield node.value
+
+from dataclasses import dataclass
+
+# DATA STRUCTURE: OOP/dataclass payload stored inside each animal-tree node.
+@dataclass
+class BSTAnimal:
+    animal_id: int
+    species: str
+    age_days: int
+    health: int = 80
+    fed: bool = False
+    vaccinated: bool = False
+
+    @property
+    def stage(self):
+        if self.species == "fish":
+            if self.age_days < 2: return "Fingerling"
+            if self.age_days < 4: return "Juvenile"
+            return "Market-size"
+        if self.age_days < 2: return "Chick"
+        if self.age_days < 4: return "Pullet"
+        return "Layer"
+
+    @property
+    def stage_rank(self):
+        if self.species == "fish":
+            return 0 if self.age_days < 2 else 1 if self.age_days < 4 else 2
+        return 0 if self.age_days < 2 else 1 if self.age_days < 4 else 2
+
+    def to_data(self):
+        return {"animal_id": self.animal_id, "species": self.species,
+                "age_days": self.age_days, "health": self.health,
+                "fed": self.fed, "vaccinated": self.vaccinated}
+
+    @classmethod
+    def from_data(cls, data):
+        return cls(data["animal_id"], data["species"], data["age_days"],
+                data.get("health", 80), data.get("fed", False),
+                data.get("vaccinated", False))
+
+# DATA STRUCTURE: binary-tree node with left/right child links and cached subtree height.
+class AVLNode:
+    def __init__(self, animal):
+        self.animal = animal
+        self.left = None
+        self.right = None
+        self.height = 1
+
+# Binary Search: AVLTree is a self-balancing BST; compare keys and rotate to maintain order/balance.
+class AVLTree:
+    """An AVL self-balancing binary search tree of animals."""
+    def __init__(self, species):
+        if species not in ("fish", "poultry"):
+            raise ValueError("species must be 'fish' or 'poultry'")
+        self.species = species
+        self.root = None
+
+    def key_for(self, animal):
+        if self.species == "fish":
+            return (animal.stage_rank, animal.animal_id)
+        return (animal.age_days, animal.animal_id)
+
+    @staticmethod
+    def _height(node):
+        return node.height if node else 0
+
+    def _refresh(self, node):
+        node.height = 1 + max(self._height(node.left), self._height(node.right))
+        return node
+
+    def _rotate_right(self, root):
+        pivot = root.left
+        middle = pivot.right
+        pivot.right = root
+        root.left = middle
+        self._refresh(root)
+        return self._refresh(pivot)
+
+    def _rotate_left(self, root):
+        pivot = root.right
+        middle = pivot.left
+        pivot.left = root
+        root.right = middle
+        self._refresh(root)
+        return self._refresh(pivot)
+
+    def _balance(self, node):
+        return self._height(node.left) - self._height(node.right) if node else 0
+
+    def _rebalance(self, node):
+        if node is None: return None
+        self._refresh(node)
+        balance = self._balance(node)
+        if balance > 1:
+            if self._balance(node.left) < 0:
+                node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)
+        if balance < -1:
+            if self._balance(node.right) > 0:
+                node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)
+        return node
+
+    def insert(self, animal):
+        if animal.species != self.species:
+            raise ValueError("animal species does not match this tree")
+        self.root = self._insert(self.root, animal)
+        return animal
+
+    def _insert(self, node, animal):
+        if node is None: return AVLNode(animal)
+        key, node_key = self.key_for(animal), self.key_for(node.animal)
+        if key < node_key: node.left = self._insert(node.left, animal)
+        elif key > node_key: node.right = self._insert(node.right, animal)
+        else: raise ValueError("duplicate BST key")
+        return self._rebalance(node)
+
+    def find(self, animal_id):
+        for animal in self.inorder():
+            if animal.animal_id == animal_id: return animal
+        return None
+
+    # Binary Search: compare the requested key, then search left or right (O(log n) when AVL-balanced).
+    def search_key(self, key):
+        """Search by the tree's ordering key in O(log n) for a balanced tree."""
+        node = self.root
+        while node:
+            node_key = self.key_for(node.animal)
+            if key == node_key: return node.animal
+            node = node.left if key < node_key else node.right
+        return None
+
+    def delete(self, animal_id):
+        animal = self.find(animal_id)
+        if animal is None: return None
+        return self.delete_key(self.key_for(animal))
+
+    # Binary Search Tree deletion: remove the matching key; AVL rotations restore balance.
+    def delete_key(self, key):
+        """Find and delete by BST key, rebalancing on the recursive return path."""
+        animal = self.search_key(key)
+        if animal is None: return None
+        self.root = self._delete(self.root, key)
+        return animal
+
+    # RECURSIVE BST OPERATION: successor replacement handles a two-child deletion.
+    def _delete(self, node, key):
+        if node is None: return None
+        node_key = self.key_for(node.animal)
+        if key < node_key:
+            node.left = self._delete(node.left, key)
+        elif key > node_key:
+            node.right = self._delete(node.right, key)
+        else:
+            if node.left is None: return node.right
+            if node.right is None: return node.left
+            successor = node.right
+            while successor.left: successor = successor.left
+            node.animal = successor.animal
+            node.right = self._delete(node.right, self.key_for(successor.animal))
+        return self._rebalance(node)
+
+    # Tree Traversals — DFS Inorder: visit left, node, right; returns ascending BST key order.
+    def inorder(self):
+        result = []
+        def walk(node):
+            if node:
+                walk(node.left)
+                result.append(node.animal)
+                walk(node.right)
+        walk(self.root)
+        return result
+
+    def records(self):
+        return [animal.to_data() for animal in self.inorder()]
+
+    def load_records(self, records):
+        self.root = None
+        for data in records:
+            self.insert(BSTAnimal.from_data(data))
+        return self
+
+    def mutate_health(self, animal_id, amount, flag=None):
+        animal = self.find(animal_id)
+        if animal is None: return None
+        return self.mutate_health_key(self.key_for(animal), amount, flag)
+
+    # NODE MUTATION: change the animal payload's health, not the key, so ordering is preserved.
+    def mutate_health_key(self, key, amount, flag=None):
+        """Mutate non-key node data after an O(log n) key search."""
+        animal = self.search_key(key)
+        if animal is None: return None
+        old_health = animal.health
+        animal.health = max(0, min(100, animal.health + amount))
+        if flag == "fed": animal.fed = True
+        if flag == "vaccinated": animal.vaccinated = True
+        return old_health, animal.health
+
+    def advance_day(self):
+        """Age animals, mutate health, and rebuild to preserve changed keys."""
+        animals = self.inorder()
+        for animal in animals:
+            loss = 4 if animal.fed else 9
+            if animal.vaccinated: loss = max(2, loss - 3)
+            animal.age_days += 1
+            animal.health = max(0, animal.health - loss)
+            animal.fed = False
+            animal.vaccinated = False
+        self.root = None
+        for animal in animals:
+            self.insert(animal)
+        return animals
+
+    def visual(self):
+        def pack(node):
+            if node is None: return None
+            animal = node.animal
+            key = self.key_for(animal)
+            return {"animal_id": animal.animal_id, "species": animal.species,
+                    "age_days": animal.age_days, "stage": animal.stage,
+                    "health": animal.health, "fed": animal.fed,
+                    "vaccinated": animal.vaccinated, "key": list(key),
+                    "height": node.height, "left": pack(node.left),
+                    "right": pack(node.right)}
+        return pack(self.root)
+
+    def validate(self):
+        """Raise AssertionError if ordering, stored heights, or AVL balance fail."""
+        def check(node, low=None, high=None):
+            if node is None: return 0
+            key = self.key_for(node.animal)
+            assert low is None or low < key, "BST lower-bound violation"
+            assert high is None or key < high, "BST upper-bound violation"
+            left_height = check(node.left, low, key)
+            right_height = check(node.right, key, high)
+            assert node.height == 1 + max(left_height, right_height), "stored height mismatch"
+            assert abs(left_height - right_height) <= 1, "AVL balance violation"
+            return node.height
+        check(self.root)
+        return True
+
+# DATA STRUCTURE: GardenWorld composes the grid, dictionary inventory, stack, FIFO queue, and AVL trees.
+class GardenWorld:
+    def __init__(self, saved_json=""):
+        self.grid = FarmGrid()
+        self.bag = ResourceBag()
+        self.history = ActionHistoryStack()
+        self.climate = ClimateQueue()
+        self.fish_tree, self.poultry_tree = AVLTree("fish"), AVLTree("poultry")
+        self.next_fish_id, self.next_poultry_id = 1, 1
+        self.weather = "Sunny"
+        self.day, self.level, self.xp = 1, 1, 0
+        self.next_order_id = 1
+        self.logs = ["A fresh morning in Garden Sanctuary. Plant a seed and make yourself at home."]
+        self.orders = []
+        if saved_json:
+            try: self.restore(json.loads(saved_json))
+            except Exception: self.start_fresh()
+        else: self.start_fresh()
+        self.emit()
+
+    def start_fresh(self):
+        self.grid = FarmGrid()
+        self.bag = ResourceBag()
+        self.history = ActionHistoryStack()
+        self.climate = ClimateQueue()
+        self.weather, self.day, self.level, self.xp = "Sunny", 1, 1, 0
+        self.next_order_id = 1
+        self.logs = ["A fresh morning in Garden Sanctuary. Plant a seed and make yourself at home."]
+        self.seed_animals()
+        self.orders = [self.make_order() for _ in range(3)]
+
+    def seed_animals(self):
+        self.fish_tree, self.poultry_tree = AVLTree("fish"), AVLTree("poultry")
+        for animal_id, age, health in ((1, 0, 88), (2, 2, 84), (3, 4, 92)):
+            self.fish_tree.insert(BSTAnimal(animal_id, "fish", age, health))
+        for animal_id, age, health in ((1, 0, 86), (2, 2, 82), (3, 4, 94)):
+            self.poultry_tree.insert(BSTAnimal(animal_id, "poultry", age, health))
+        self.next_fish_id, self.next_poultry_id = 4, 4
+
+    def save_data(self):
+        return {"bag": self.bag.snapshot(), "plots": [[cell.to_dict() for cell in row] for row in self.grid.cells],
+                "climate": self.climate.peek(), "weather": self.weather, "day": self.day, "level": self.level,
+                "xp": self.xp, "next_order_id": self.next_order_id, "orders": deepcopy(self.orders), "logs": self.logs[-8:],
+                "fish_animals": self.fish_tree.records(), "poultry_animals": self.poultry_tree.records(),
+                "next_fish_id": self.next_fish_id, "next_poultry_id": self.next_poultry_id}
+
+    def restore(self, data):
+        self.bag = ResourceBag(deepcopy(data.get("bag", {})))
+        plots = data.get("plots", [])
+        self.grid = FarmGrid()
+        for row in range(min(5, len(plots))):
+            for col in range(min(5, len(plots[row]))):
+                item = plots[row][col]
+                if not isinstance(item, dict): continue
+                crop_name = LEGACY_CROPS.get(item.get("crop"), item.get("crop"))
+                self.grid.cells[row][col] = FarmCell(crop_name, item.get("growth", 0), item.get("watered", False),
+                                                    item.get("pest", False), item.get("health", 100), item.get("water_need"))
+        self.climate = ClimateQueue(data.get("climate", ["Rain", "Cloudy", "Sunny", "Breezy"]))
+        self.weather = data.get("weather", "Sunny")
+        self.day, self.level, self.xp = data.get("day", 1), data.get("level", 1), data.get("xp", 0)
+        self.next_order_id = data.get("next_order_id", 1)
+        self.orders = data.get("orders", []) or [self.make_order() for _ in range(3)]
+        for order in self.orders:
+            order["crop"] = LEGACY_CROPS.get(order.get("crop"), order.get("crop"))
+        self.logs = data.get("logs", []) or ["Welcome back to your garden."]
+        if "fish_animals" in data:
+            self.fish_tree = AVLTree("fish").load_records(data.get("fish_animals", []))
+            self.next_fish_id = data.get("next_fish_id", max([a.animal_id for a in self.fish_tree.inorder()] + [0]) + 1)
+        else:
+            self.seed_animals()
+        if "poultry_animals" in data:
+            self.poultry_tree = AVLTree("poultry").load_records(data.get("poultry_animals", []))
+            self.next_poultry_id = data.get("next_poultry_id", max([a.animal_id for a in self.poultry_tree.inorder()] + [0]) + 1)
+        elif "fish_animals" in data:
+            self.poultry_tree = AVLTree("poultry")
+            for animal_id, age, health in ((1, 0, 86), (2, 2, 82), (3, 4, 94)):
+                self.poultry_tree.insert(BSTAnimal(animal_id, "poultry", age, health))
+            self.next_poultry_id = 4
+        if not hasattr(self, "history"): self.history = ActionHistoryStack()
+
+    def emit(self):
+        renderState(json.dumps(self.view()))
+        persistState(json.dumps(self.save_data()))
+
+    def note(self, text):
+        self.logs.append(text)
+        self.logs = self.logs[-8:]
+        showNote(text)
+
+    def crop_options(self):
+        # DATA STRUCTURE: tuple records feed the dropdown builder; metadata lookup uses the CROP_BOOK dictionary.
+        return addPlantsToDropdown(PLANT_DROPDOWN)
+
+    def make_order(self):
+        available = [name for name, _, _ in PLANT_DROPDOWN]
+        available += ["Fish", "Eggs"]
+        if self.level >= 2: available.append("Poultry")
+        crop = random.choice(available)
+        if crop in CROP_BOOK:
+            quantity = random.randint(1, 2) if crop in ("Turnip", "Carrot") else 1
+            value = CROP_BOOK[crop]["sell"]
+        else:
+            quantity = 1
+            value = PRODUCT_BOOK[crop]["sell"]
+        order = {"id": self.next_order_id, "crop": crop, "quantity": quantity,
+                 "coins": value * quantity + random.randint(3, 7), "xp": 8 + quantity * 3}
+        self.next_order_id += 1
+        return order
+
+    def view(self):
+        plots = []
+        for row in self.grid.cells:
+            plots.append([cell.to_dict() for cell in row])
+        threshold = 30 + (self.level - 1) * 20
+        planted = sum(1 for row in plots for cell in row if cell["crop"])
+        ripe = sum(1 for row in plots for cell in row if cell["crop"] and cell["growth"] >= CROP_BOOK[cell["crop"]]["days"])
+        return {"resources": self.bag.snapshot(), "plots": plots, "orders": self.orders,
+                "weather": self.weather, "weather_info": WEATHER.get(self.weather, WEATHER["Sunny"]),
+                "forecast": self.climate.peek(), "day": self.day, "level": self.level, "xp": self.xp,
+                "xp_needed": threshold, "crops": self.crop_options(), "journal": self.history.labels(),
+                "logs": list(reversed(self.logs[-5:])), "planted": planted, "ripe": ripe,
+                "pests": sum(1 for row in plots for cell in row if cell["pest"]),
+                "fish_tree": self.fish_tree.visual(), "poultry_tree": self.poultry_tree.visual(),
+                "fish_count": len(self.fish_tree.inorder()), "poultry_count": len(self.poultry_tree.inorder())}
+
+    # STACK OPERATION: save a snapshot by pushing it to the LIFO action-history list.
+    def remember(self, label): self.history.push(self.save_data(), label)
+
+    def undo(self):
+        record = self.history.pop()
+        if not record:
+            self.note("The deed stack is empty; there is nothing to undo.")
+            self.emit()
+            return
+        snapshot, label = record
+        self.restore(snapshot)
+        self.note("Undid: " + label)
+        self.emit()
+
+    def plot_action(self, pos, action, crop_name):
+        if pos < 0 or pos >= 25: return
+        row, col = divmod(pos, 5)
+        cell = self.grid.get(row, col)
+        if action == "Plant":
+            if cell.crop:
+                self.note("That bed is occupied. Harvest it before replanting.")
+            elif crop_name not in {item[0] for item in PLANT_DROPDOWN}:
+                self.note("Choose one of the five plants in the seed dropdown.")
+            elif self.level < CROP_BOOK[crop_name]["unlock"]:
+                self.note("That crop unlocks at level " + str(CROP_BOOK[crop_name]["unlock"]) + ".")
+            elif not self.bag.has("Seeds"):
+                self.note("You are out of seeds. Visit the village market.")
+            elif not self.bag.has("Coins", CROP_BOOK[crop_name]["seed_cost"]):
+                self.note("Not enough coins for those seeds.")
+            elif not self.bag.has("Energy", 2):
+                self.note("You need more energy to plant. Rest until daybreak.")
+            else:
+                self.remember("Planted " + crop_name)
+                self.bag.take("Seeds")
+                self.bag.take("Coins", CROP_BOOK[crop_name]["seed_cost"])
+                self.bag.take("Energy", 2)
+                cell.crop, cell.growth, cell.watered, cell.pest = crop_name, 0, False, False
+                self.note("Planted " + crop_name + " · a new little life!")
+        elif action == "Water": self.water_plot(row, col)
+        elif action == "Harvest": self.harvest_plot(row, col)
+        elif action == "Scan": self.scan_pests()
+        elif action == "Clean": self.clean_pests()
+        self.emit()
+
+    def water_plot(self, row, col):
+        cell = self.grid.get(row, col)
+        context = {"cell": cell, "row": row, "col": col}
+        def check(ctx):
+            if ctx["cell"].crop is None: self.note("Plant something in that bed before watering."); return False
+            if ctx["cell"].watered: self.note("This crop is already watered for today."); return False
+            amount = ctx["cell"].plant.water_need
+            if not self.bag.has("Water", amount): self.note("This plant needs " + str(amount) + " water. Wait for rain or buy water."); return False
+            if not self.bag.has("Energy", 2): self.note("You need more energy to water. Rest until daybreak."); return False
+            return True
+        def apply(ctx):
+            amount = ctx["cell"].plant.water_need
+            self.remember("Watered " + ctx["cell"].crop)
+            self.bag.take("Water", amount)
+            self.bag.take("Energy", 2)
+            ctx["cell"].watered = True
+            ctx["cell"].plant.health = min(100, ctx["cell"].plant.health + 10)
+            self.note("Watered the " + ctx["cell"].crop.lower() + " bed with " + str(amount) + " water.")
+        tree = ActionNode("Watering tree", children=[ActionNode("Check soil and supplies", check), ActionNode("Water the plot", apply)])
+        run_action_tree(tree, context)
+
+    def harvest_plot(self, row, col):
+        cell = self.grid.get(row, col)
+        context = {"cell": cell}
+        def check(ctx):
+            crop = ctx["cell"].crop
+            if crop is None: self.note("That bed is empty."); return False
+            if ctx["cell"].pest: self.note("Clear the bug before harvesting this crop."); return False
+            if ctx["cell"].growth < CROP_BOOK[crop]["days"]: self.note("Not ripe yet. Water it and wait for daybreak."); return False
+            if not self.bag.has("Energy"): self.note("You need more energy to harvest. Rest until daybreak."); return False
+            return True
+        def harvest(ctx):
+            crop = ctx["cell"].crop
+            self.remember("Harvested " + crop)
+            self.bag.take("Energy")
+            self.bag.add(crop, CROP_BOOK[crop]["yield"])
+            self.bag.add("Hope", 1)
+            ctx["cell"].crop, ctx["cell"].growth, ctx["cell"].watered, ctx["cell"].pest = None, 0, False, False
+            self.add_xp(3)
+            self.note("Harvested " + crop + " · " + str(CROP_BOOK[crop]["yield"]) + " added to the basket.")
+        tree = ActionNode("Harvest tree", children=[ActionNode("Check ripe crop", check), ActionNode("Gather produce", harvest)])
+        run_action_tree(tree, context)
+
+    def add_xp(self, amount):
+        self.xp += amount
+        while self.xp >= 30 + (self.level - 1) * 20:
+            self.xp -= 30 + (self.level - 1) * 20
+            self.level += 1
+            self.note("Level up! You are now level " + str(self.level) + ". New crops may be ready to plant!")
+
+    def complete_order(self, order_id):
+        order = next((item for item in self.orders if item["id"] == order_id), None)
+        if order is None: return
+        crop, qty = order["crop"], order["quantity"]
+        if not self.bag.has(crop, qty):
+            self.note("Your basket needs " + str(qty) + " " + crop.lower() + " to fill that order.")
+            self.emit(); return
+        self.remember("Filled village order")
+        self.bag.take(crop, qty)
+        self.bag.add("Coins", order["coins"])
+        self.bag.add("Hope", 3)
+        self.add_xp(order["xp"])
+        self.orders.remove(order)
+        self.orders.append(self.make_order())
+        self.note("Order delivered! +" + str(order["coins"]) + " coins and +" + str(order["xp"]) + " XP.")
+        self.emit()
+
+    def buy_supply(self, item):
+        offers = {"seeds": ("Seeds", 10, 35), "water": ("Water", 30, 20), "spray": ("Spray", 2, 18),
+                "feed": ("Feed", 6, 16), "vaccine": ("Vaccine", 3, 21)}
+        if item not in offers: return
+        name, quantity, cost = offers[item]
+        if name == "Water": quantity = min(quantity, 200 - self.bag.amount("Water"))
+        if quantity <= 0:
+            self.note("The water barrel is already full.")
+        elif not self.bag.take("Coins", cost): self.note("Not enough coins for that market bundle.")
+        else:
+            self.remember("Bought " + name.lower())
+            self.bag.add(name, quantity)
+            self.note("The market stall packed " + str(quantity) + " " + name.lower() + ".")
+        self.emit()
+
+    def buy_animal(self, species):
+        if species == "fish":
+            tree, cost, cap, next_id = self.fish_tree, 18, 8, self.next_fish_id
+        elif species == "poultry":
+            tree, cost, cap, next_id = self.poultry_tree, 14, 8, self.next_poultry_id
+        else:
+            return
+        if len(tree.inorder()) >= cap:
+            self.note("This pond or coop is full. Harvest an animal before adding another.")
+        elif not self.bag.has("Coins", cost):
+            self.note("Not enough coins to bring home a new " + ("fingerling." if species == "fish" else "chick."))
+        else:
+            self.remember("Added a " + ("fingerling" if species == "fish" else "chick"))
+            self.bag.take("Coins", cost)
+            tree.insert(BSTAnimal(next_id, species, 0, 82))
+            if species == "fish": self.next_fish_id += 1
+            else: self.next_poultry_id += 1
+            self.note("A new " + ("fingerling" if species == "fish" else "chick") + " joined the farm BST.")
+        self.emit()
+
+    def animal_action(self, species, action, animal_key):
+        tree = self.fish_tree if species == "fish" else self.poultry_tree if species == "poultry" else None
+        if tree is None: return
+        key = tuple(animal_key)
+        animal = tree.search_key(key)
+        if animal is None:
+            self.note("That animal has already left the tree.")
+        elif action == "feed":
+            if not self.bag.has("Feed"):
+                self.note("Out of animal feed. Pick some up at the market.")
+            elif animal.fed:
+                self.note("This animal has already been fed for today.")
+            elif animal.health >= 100:
+                self.note("This animal is already at full health.")
+            else:
+                self.remember("Fed " + animal.stage.lower())
+                self.bag.take("Feed")
+                old, new = tree.mutate_health_key(key, 18, "fed")
+                self.note("Node mutation: health " + str(old) + " → " + str(new) + " after feeding.")
+        elif action == "vaccinate":
+            if species != "poultry":
+                self.note("Vaccines are for the poultry flock.")
+            elif not self.bag.has("Vaccine"):
+                self.note("Out of vaccine doses. Visit the village market.")
+            elif animal.vaccinated:
+                self.note("This bird is already vaccinated for today.")
+            elif animal.health >= 100:
+                self.note("This bird is already at full health.")
+            else:
+                self.remember("Vaccinated a bird")
+                self.bag.take("Vaccine")
+                old, new = tree.mutate_health_key(key, 22, "vaccinated")
+                self.note("Node mutation: vaccinated bird health " + str(old) + " → " + str(new) + ".")
+        elif action == "harvest":
+            mature = (species == "fish" and animal.stage == "Market-size") or (species == "poultry" and animal.stage == "Layer")
+            if not mature:
+                self.note("This animal is still growing. Wait for it to reach market size.")
+            elif animal.health < 15:
+                self.note("This animal needs care before it can be harvested.")
+            else:
+                self.remember("Harvested a " + animal.stage.lower())
+                removed = tree.delete_key(key)
+                tree.validate()
+                product = "Fish" if species == "fish" else "Poultry"
+                self.bag.add(product)
+                self.note("Harvest deleted node #" + str(removed.animal_id) + "; AVL tree rebalanced. +1 " + product + ".")
+        self.emit()
+
+    def advance_animals(self):
+        layers = [animal for animal in self.poultry_tree.inorder() if animal.stage == "Layer" and animal.health >= 25]
+        if layers:
+            self.bag.add("Eggs", len(layers))
+            self.note(str(len(layers)) + " layer(s) laid eggs at daybreak.")
+        self.fish_tree.advance_day()
+        self.poultry_tree.advance_day()
+        self.fish_tree.validate()
+        self.poultry_tree.validate()
+        if self.fish_tree.root or self.poultry_tree.root:
+            self.note("Pond and coop aged; their BST keys were updated and both AVL trees rebalanced.")
+
+    def scan_pests(self):
+        root = self.grid.scan_tree()
+        found = [pos for pos in preorder(root) if self.grid.get(*divmod(pos, 5)).pest]
+        swept = list(level_order(root))
+        self.note("Garden scan: DFS found " + str(len(found)) + " pest(s); BFS checked " + str(len(swept)) + " beds.")
+
+    def clean_pests(self):
+        root = self.grid.scan_tree()
+        found = [pos for pos in preorder(root) if self.grid.get(*divmod(pos, 5)).pest]
+        if not found:
+            self.note("The garden is clear—no bugs to clean.")
+            return
+        if not self.bag.has("Spray"):
+            self.note("Out of bug spray. Pick up a bottle at the market.")
+            return
+        self.remember("Cleaned garden pests")
+        self.bag.take("Spray")
+        cleaned = 0
+        for pos in postorder(root):
+            cell = self.grid.get(*divmod(pos, 5))
+            if cell.pest:
+                cell.pest = False
+                cleaned += 1
+        self.note("Post-order cleanup cleared " + str(cleaned) + " pesty bed(s).")
+
+    def advance_day(self):
+        context = {}
+        def weather_step(_):
+            self.weather = self.climate.advance()
+            if self.weather == "Rain":
+                self.bag.add("Water", min(15, 200 - self.bag.amount("Water")))
+                for _, cell in self.iter_cells():
+                    if cell.crop: cell.watered = True
+                self.note("Rain overnight! The beds are watered and the barrel caught some rain.")
+            else: self.note(WEATHER[self.weather]["note"])
+        def growth_step(_):
+            growing = 0
+            wilted = 0
+            for _, cell in self.iter_cells():
+                if cell.crop and cell.watered:
+                    cell.growth = min(CROP_BOOK[cell.crop]["days"], cell.growth + 1)
+                    cell.plant.health = min(100, cell.plant.health + 5)
+                    cell.watered = False
+                    growing += 1
+                elif cell.crop:
+                    cell.plant.health = max(0, cell.plant.health - 10)
+                    wilted += 1
+            self.bag.add("Energy", 15)
+            if growing: self.note(str(growing) + " watered plant(s) grew with the morning light.")
+            if wilted: self.note(str(wilted) + " dry plant(s) lost health; tend them to help them recover.")
+            self.note("Daybreak restored 15 energy.")
+        def pest_step(_):
+            open_crops = [(r, c) for (r, c), cell in self.iter_cells() if cell.crop and not cell.pest]
+            if open_crops and random.random() < (0.38 if self.weather == "Breezy" else 0.22):
+                row, col = random.choice(open_crops)
+                self.grid.get(row, col).pest = True
+                self.note("A tiny bug landed on bed " + str(row * 5 + col + 1) + ". Try a pest scan!")
+        def animal_step(_):
+            self.advance_animals()
+        def sunrise(_):
+            self.day += 1
+        tree = ActionNode("Two-minute day transition", children=[
+            ActionNode("Climate branch", children=[ActionNode("Advance FIFO forecast", weather_step)]),
+            ActionNode("Crop branch", children=[ActionNode("Grow watered crops", growth_step)]),
+            ActionNode("Pest branch", children=[ActionNode("Check for garden pests", pest_step)]),
+            ActionNode("Animal branch", children=[ActionNode("Age fish and poultry", animal_step)]),
+            ActionNode("Sunrise branch", children=[ActionNode("Start the new day", sunrise)])
+        ])
+        run_action_tree(tree, context)
+        self.emit()
+
+    def iter_cells(self):
+        for r in range(5):
+            for c in range(5): yield (r, c), self.grid.get(r, c)
+
+# DATA STRUCTURE COMPOSITION: create the OOP game controller and restore dictionary/list state from JSON.
+world = GardenWorld(loadSavedState())
+
+def handle_plot(pos, action, crop): world.plot_action(int(pos), str(action), str(crop))
+def advance_day(): world.advance_day()
+def complete_order(order_id): world.complete_order(int(order_id))
+def buy_supply(item): world.buy_supply(str(item))
+def undo_action(): world.undo()
+def buy_animal(species): world.buy_animal(str(species))
+def animal_action(species, action, animal_key): world.animal_action(str(species), str(action), tuple(animal_key))
+
+# DATA STRUCTURE: keyword arguments update named entries in the ResourceBag dictionary/hash map.
+# Resource initialization/update helper, equivalent to updateResources(water=..., seeds=..., ...).
+def updateResources(water=200, seeds=90, energy=110, hope=80, coins=999):
+    world.bag.items.update({"Water": int(water), "Seeds": int(seeds), "Energy": int(energy),
+                            "Hope": int(hope), "Coins": int(coins)})
+    world.emit()
+
+print("Congratulations!, you created a plant!")
+print("Resource Storage and Plant Dropdown is Unlocked!")
+</script>
+<script>
+const SAVE_KEY = 'gardenSanctuaryGame_v12';
+let pyodideInstance = null;
+let activeTool = 'Plant';
+let selectedCrop = 'Turnip';
+let dayStartedAt = Date.now();
+let lastPlots = [];
+let gameReady = false;
+
+function showToast(message) {
+  const box = document.getElementById('toast-container');
+  box.replaceChildren();
+  const item = document.createElement('div');
+  item.className = 'glass-panel toast max-w-sm px-5 py-3 text-amber-50 shadow-xl';
+  item.textContent = message;
+  box.appendChild(item);
+  setTimeout(() => { if (item.parentNode === box) item.remove(); }, 2400);
+}
+function switchTab(tab) {
+  ['farm','animals','notebook'].forEach(name => {
+    document.getElementById(`pane-${name}`).classList.toggle('active', tab === name);
+    document.getElementById(`tab-${name}`).classList.toggle('active', tab === name);
+  });
+}
+function setTool(tool) {
+  activeTool = tool;
+  document.querySelectorAll('.tool-button').forEach(button => {
+    const chosen = button.dataset.tool === tool;
+    button.style.outline = chosen ? '3px solid #f4cf74' : 'none';
+    button.style.outlineOffset = chosen ? '2px' : '0';
+  });
+  const notes = {Plant:'Choose a crop, then tuck it into an empty bed.',Water:'Water a planted bed before daybreak.',Harvest:'Gather ripe crops for village orders.',Scan:'Use the tree traversal scan to find bugs.',Clean:'One spray bottle clears the garden with a post-order sweep.'};
+  document.getElementById('farm-subtitle').textContent = notes[tool] || 'Tend your patch.';
+}
+function setCrop(crop) { selectedCrop = crop; }
+function callPython(name, ...args) {
+  if (!pyodideInstance) { showToast('The Python garden is still waking up.'); return; }
+  const fn = pyodideInstance.globals.get(name);
+  if (!fn) { showToast('Python function not available: ' + name); return; }
+  try {
+    const result = fn(...args);
+    if (result && typeof result.then === 'function') result.catch(e => showToast('Garden error: ' + e.message));
+  } catch (e) { showToast('Garden error: ' + e.message); }
+  finally { if (fn.destroy) fn.destroy(); }
+}
+function clickPlot(pos) { callPython('handle_plot', pos, activeTool, selectedCrop); }
+function nextDay() {
+  if (!gameReady) return;
+  dayStartedAt = Date.now();
+  callPython('advance_day');
+}
+function completeOrder(id) { callPython('complete_order', id); }
+function buySupply(item) { callPython('buy_supply', item); }
+function undoAction() { callPython('undo_action'); }
+function buyAnimal(species) { callPython('buy_animal', species); }
+function animalAction(species, action, key) { callPython('animal_action', species, action, key); }
+function renderState(json) {
+  const state = typeof json === 'string' ? JSON.parse(json) : json;
+  lastPlots = state.plots;
+  document.getElementById('day-counter').textContent = String(state.day).padStart(2,'0');
+  document.getElementById('level-counter').textContent = state.level;
+  const nextLevel = state.level + 1;
+  const threshold = state.xp_needed;
+  document.getElementById('next-level').textContent = nextLevel;
+  document.getElementById('xp-counter').textContent = `${state.xp} / ${threshold} XP`;
+  document.getElementById('xp-bar').style.width = `${Math.min(100, state.xp / threshold * 100)}%`;
+  const r = state.resources;
+  document.getElementById('water-label').textContent = `${r.Water} / 200`;
+  document.getElementById('water-bar').style.width = `${Math.min(100,r.Water/200*100)}%`;
+  document.getElementById('seeds-label').textContent = `${r.Seeds} / 100`;
+  document.getElementById('seeds-bar').style.width = `${Math.min(100,r.Seeds/100*100)}%`;
+  document.getElementById('energy-label').textContent = `${r.Energy} / 110`;
+  document.getElementById('energy-bar').style.width = `${Math.min(100,r.Energy/110*100)}%`;
+  document.getElementById('hope-label').textContent = `${r.Hope} / 100`;
+  document.getElementById('hope-bar').style.width = `${Math.min(100,r.Hope/100*100)}%`;
+  document.getElementById('coins-label').textContent = r.Coins;
+  document.getElementById('coins-bar').style.width = `${Math.min(100,r.Coins/999*100)}%`;
+  document.getElementById('spray-label').textContent = r.Spray;
+  document.getElementById('spray-bar').style.width = `${Math.min(100,r.Spray/5*100)}%`;
+  document.getElementById('feed-label').textContent = r.Feed;
+  document.getElementById('feed-bar').style.width = `${Math.min(100,r.Feed/12*100)}%`;
+  document.getElementById('vaccine-label').textContent = r.Vaccine;
+  document.getElementById('vaccine-bar').style.width = `${Math.min(100,r.Vaccine/6*100)}%`;
+  renderProduce(r);
+  renderCrops(state.crops);
+  renderPlots(state.plots);
+  renderOrders(state.orders, r);
+  renderWeather(state);
+  renderJournal(state.journal);
+  renderAnimalTrees(state.fish_tree, state.poultry_tree);
+  document.getElementById('fish-count').textContent = state.fish_count;
+  document.getElementById('poultry-count').textContent = state.poultry_count;
+  const planted = state.planted;
+  document.getElementById('farm-subtitle').textContent = state.pests ? `${planted} beds growing · ${state.ripe} ready · ${state.pests} pest${state.pests===1?'':'s'} to clear` : `${planted} beds growing · ${state.ripe} ready to harvest`;
+  if (state.logs && state.logs.length) document.getElementById('farm-message').textContent = state.logs[0];
+  document.getElementById('engine-status').textContent = `Python engine: running · ${planted}/25 beds · ${state.pests} pests`;
+}
+function renderProduce(resources) {
+  const container = document.getElementById('produce-list');
+  container.replaceChildren();
+  const crops = [{name:'Eggplant',emoji:'🍆'},{name:'Apples',emoji:'🍎'},{name:'Banana',emoji:'🍌'},{name:'Melon',emoji:'🍈'},{name:'Pineapple',emoji:'🍍'},{name:'Fish',emoji:'🐟'},{name:'Eggs',emoji:'🥚'},{name:'Poultry',emoji:'🍗'}];
+  crops.forEach(crop => {
+    const card = document.createElement('div');
+    card.className = 'parchment px-2 py-1 flex justify-between rounded text-sm';
+    const label = document.createElement('span'); label.textContent = `${crop.emoji} ${crop.name}`;
+    const count = document.createElement('b'); count.textContent = resources[crop.name] || 0;
+    card.append(label,count); container.appendChild(card);
+  });
+}
+function renderCrops(crops) {
+  const picker = document.getElementById('crop-picker');
+  const current = selectedCrop;
+  picker.replaceChildren();
+  crops.forEach(crop => {
+    const option = document.createElement('option');
+    option.value = crop.name;
+    option.textContent = `${crop.emoji} ${crop.name} · ${crop.seed_cost}c · ${crop.days} day${crop.days===1?'':'s'}` + (crop.unlocked ? '' : ` · Lv ${crop.unlock}`);
+    option.disabled = !crop.unlocked;
+    picker.appendChild(option);
+  });
+  const available = crops.find(c => c.name === current && c.unlocked) || crops.find(c => c.unlocked);
+  if (available) { picker.value = available.name; selectedCrop = available.name; }
+}
+function renderPlots(plots) {
+  const grid = document.getElementById('garden-grid');
+  const old = [...grid.children];
+  grid.replaceChildren();
+  plots.forEach((row,r) => row.forEach((cell,c) => {
+    const pos = r*5+c;
+    const button = document.createElement('button');
+    button.type = 'button'; button.className = 'tile-soil aspect-square rounded-lg flex items-center justify-center text-2xl md:text-3xl cursor-pointer overflow-hidden';
+    button.setAttribute('aria-label', `Bed ${pos+1}${cell.crop ? ` ${cell.crop}, growth ${cell.growth}` : ', empty'}`);
+    const contents = document.createElement('span'); contents.className = 'relative z-10';
+    if (cell.crop) {
+      const crop = cell.crop;
+      const cfg = {Eggplant:['🍆','🌱','🌿','🍆'],Apples:['🍎','🌱','🌿','🍎'],Banana:['🍌','🌱','🌿','🍌'],Melon:['🍈','🌱','🌿','🍈'],Pineapple:['🍍','🌱','🌿','🍍'],Turnip:['🥕','🌱','🌿','🥕'],Carrot:['🥕','🌱','🌿','🥕'],Berry:['🍓','🌱','🌿','🍓'],Sunflower:['🌻','🌱','🌿','🌻'],Pumpkin:['🎃','🌱','🌿','🎃']}[crop] || ['🌱','🌱','🌿','🌼'];
+      const max = ({Eggplant:2,Apples:4,Banana:2,Melon:3,Pineapple:4,Turnip:1,Carrot:2,Berry:2,Sunflower:3,Pumpkin:3})[crop] || 2;
+      const stage = cell.growth >= max ? 3 : cell.growth === 0 ? 1 : 2;
+      contents.textContent = cfg[stage];
+      if (cell.growth >= max) button.classList.add('grow-wiggle');
+      button.title = `${crop} · ${cell.growth >= max ? 'ready to harvest' : `${max-cell.growth} day(s) to ripe`} · health ${cell.health}% · needs ${cell.water_need} water`;
+    } else { contents.textContent = ''; button.title = 'Empty bed'; }
+    button.appendChild(contents);
+    const badge = document.createElement('span'); badge.className = 'absolute top-0.5 right-1 text-sm z-20';
+    if (cell.pest) { badge.textContent = '🐛'; button.title += ' · pest!'; }
+    else if (cell.watered) { badge.textContent = '💧'; button.title += ' · watered'; }
+    if (badge.textContent) button.appendChild(badge);
+    if (cell.crop && cell.growth >= (({Eggplant:2,Apples:4,Banana:2,Melon:3,Pineapple:4,Turnip:1,Carrot:2,Berry:2,Sunflower:3,Pumpkin:3})[cell.crop]||2)) {
+      const ready = document.createElement('span'); ready.className='absolute bottom-0 left-0 right-0 bg-amber-200 text-amber-950 text-[9px] leading-4 pixel-font'; ready.textContent='RIPE'; button.appendChild(ready);
+    }
+    if (cell.crop) {
+      const health = document.createElement('span'); health.className='absolute bottom-1 left-1 text-[10px] leading-3 text-pink-200 z-20'; health.textContent=`♥${cell.health}`; button.appendChild(health);
+    }
+    button.addEventListener('click', () => clickPlot(pos));
+    if (cell.crop && (!old[pos] || old[pos].getAttribute('aria-label') !== button.getAttribute('aria-label'))) button.classList.add('plant-pop');
+    grid.appendChild(button);
+  }));
+}
+function renderAnimalTrees(fishRoot, poultryRoot) {
+  renderBST("fish-tree-view", fishRoot, "fish");
+  renderBST("poultry-tree-view", poultryRoot, "poultry");
+}
+function renderBST(containerId, root, species) {
+  const host = document.getElementById(containerId);
+  host.replaceChildren();
+  if (!root) {
+    const empty = document.createElement("div");
+    empty.className = "text-emerald-100/60 p-4";
+    empty.textContent = species === "fish" ? "The pond is empty. Add a fingerling to begin the BST." : "The coop is empty. Add a chick to begin the BST.";
+    host.appendChild(empty);
+    return;
+  }
+  const stageIcon = species === "fish" ? "🐟" : "🐔";
+  function build(node) {
+    const branch = document.createElement("div"); branch.className = "bst-branch";
+    const card = document.createElement("div"); card.className = `bst-node-card ${species === 'fish' ? 'fish-node' : 'bird-node'}`;
+    const title = document.createElement("div"); title.className = "bst-node-title";
+    title.textContent = `${stageIcon} NODE #${node.animal_id}`;
+    const key = document.createElement("div"); key.className = "text-amber-100 text-sm mt-1";
+    key.textContent = `key = (${node.key.join(', ')})`;
+    const stage = document.createElement("div"); stage.className = "text-emerald-100 mt-1";
+    stage.textContent = `${node.stage} · age ${node.age_days}d`;
+    const healthLine = document.createElement("div"); healthLine.className = "flex justify-between text-xs mt-2";
+    const healthText = document.createElement("span"); healthText.textContent = `Health ${node.health}%`;
+    healthText.className = node.health >= 70 ? "text-emerald-300" : node.health >= 40 ? "text-amber-300" : "text-rose-300";
+    const stateText = document.createElement("span"); stateText.className = "text-cyan-200";
+    stateText.textContent = [node.fed ? "fed" : "", node.vaccinated ? "vaccinated" : ""].filter(Boolean).join(" · ");
+    healthLine.append(healthText, stateText);
+    const track = document.createElement("div"); track.className = "animal-health mt-1";
+    const fill = document.createElement("div"); fill.className = "animal-health-fill";
+    fill.style.width = `${node.health}%`;
+    fill.style.background = node.health >= 70 ? "#69b965" : node.health >= 40 ? "#e9b94b" : "#db6470";
+    track.appendChild(fill);
+    const actions = document.createElement("div"); actions.className = "grid grid-cols-2 gap-1 mt-2";
+    const feed = document.createElement("button"); feed.className = "pixel-btn animal-action rounded bg-orange-800 px-2 py-1 text-orange-50"; feed.textContent = "🌾 Feed";
+    feed.addEventListener("click", () => animalAction(species, "feed", node.key)); actions.appendChild(feed);
+    if (species === "poultry") {
+      const vaccine = document.createElement("button"); vaccine.className = "pixel-btn animal-action rounded bg-pink-900 px-2 py-1 text-pink-50"; vaccine.textContent = "💉 Vaccinate";
+      vaccine.addEventListener("click", () => animalAction(species, "vaccinate", node.key)); actions.appendChild(vaccine);
+    }
+    const mature = species === "fish" ? node.stage === "Market-size" : node.stage === "Layer";
+    if (mature) {
+      const harvest = document.createElement("button"); harvest.className = "pixel-btn animal-action rounded bg-emerald-800 px-2 py-1 text-emerald-50 col-span-2"; harvest.textContent = species === "fish" ? "🧺 Harvest fish · delete node" : "🧺 Harvest bird · delete node";
+      harvest.addEventListener("click", () => animalAction(species, "harvest", node.key)); actions.appendChild(harvest);
+    }
+    card.append(title,key,stage,healthLine,track,actions); branch.appendChild(card);
+    if (node.left || node.right) {
+      const children = document.createElement("div"); children.className = "bst-children";
+      [node.left,node.right].forEach(child => {
+        const slot = document.createElement("div"); slot.className = "bst-slot";
+        if (child) slot.appendChild(build(child));
+        else { const empty = document.createElement("div"); empty.className = "bst-empty"; slot.appendChild(empty); }
+        children.appendChild(slot);
+      });
+      branch.appendChild(children);
+    }
+    return branch;
+  }
+  const tree = document.createElement("div"); tree.className = "bst-tree"; tree.appendChild(build(root)); host.appendChild(tree);
+}
+function renderOrders(orders, resources) {
+  const root = document.getElementById('orders-list'); root.replaceChildren();
+  orders.forEach(order => {
+    const card = document.createElement('div'); card.className = 'order-card p-3';
+    const title = document.createElement('div'); title.className = 'flex justify-between gap-2 items-center';
+    const name = document.createElement('b'); name.className = 'text-amber-200'; name.textContent = `${({Eggplant:'🍆',Apples:'🍎',Banana:'🍌',Melon:'🍈',Pineapple:'🍍',Turnip:'🥕',Carrot:'🥕',Berry:'🍓',Sunflower:'🌻',Pumpkin:'🎃',Fish:'🐟',Eggs:'🥚',Poultry:'🍗'})[order.crop]} ${order.crop}`;
+    const qty = document.createElement('span'); qty.className='text-emerald-100'; qty.textContent = `× ${order.quantity}`;
+    title.append(name,qty);
+    const reward = document.createElement('div'); reward.className='flex justify-between text-sm mt-2 text-amber-100'; reward.textContent=`🪙 ${order.coins} coins · ✨ ${order.xp} XP`;
+    const button = document.createElement('button'); button.className='pixel-btn w-full mt-3 rounded-lg bg-emerald-800 py-1.5 text-emerald-50'; button.textContent='📦 Send basket';
+    button.disabled = (resources[order.crop]||0) < order.quantity;
+    button.addEventListener('click', () => completeOrder(order.id));
+    card.append(title,reward,button); root.appendChild(card);
+  });
+}
+function renderWeather(state) {
+  const root = document.getElementById('climate-queue'); root.replaceChildren();
+  const items = [{name:state.weather, current:true}, ...state.forecast.slice(0,3).map(name => ({name,current:false}))];
+  items.forEach(item => {
+    const cfg = state.weather_info;
+    const icon = ({Sunny:'☀️',Rain:'🌧️',Cloudy:'☁️',Breezy:'🍃'})[item.name] || '🌤️';
+    const card = document.createElement('div'); card.className='bg-amber-950/40 border border-amber-900 rounded-lg p-2.5 flex gap-3 items-center';
+    const symbol = document.createElement('span'); symbol.className='text-2xl'; symbol.textContent=icon;
+    const text = document.createElement('div');
+    const label = document.createElement('div'); label.className='text-amber-300 font-bold'; label.textContent=`${item.current?'TODAY':'QUEUED'} · ${item.name}`;
+    const detail = document.createElement('div'); detail.className='text-emerald-200/70 text-sm'; detail.textContent=item.current?cfg.note:(item.name==='Rain'?'Rain waters planted beds':'In the FIFO forecast');
+    text.append(label,detail); card.append(symbol,text); root.appendChild(card);
+  });
+}
+function renderJournal(labels) {
+  const root=document.getElementById('action-stack'); root.replaceChildren();
+  if(!labels.length){const empty=document.createElement('div');empty.className='text-emerald-100/50';empty.textContent='Your first farm chore will appear here.';root.appendChild(empty);return;}
+  labels.forEach(label=>{const item=document.createElement('div');item.className='bg-emerald-950/60 border-l-2 border-amber-500 px-3 py-1.5 rounded text-emerald-100 text-sm';item.textContent='→ '+label;root.appendChild(item);});
+}
+function updateTimer() {
+  if (!gameReady) return;
+  const elapsed = Date.now()-dayStartedAt;
+  const left = Math.max(0,120000-elapsed);
+  const sec = Math.ceil(left/1000);
+  const text = `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
+  document.getElementById('day-timer').textContent=text;
+  document.getElementById('daylight-caption').textContent=text+' remaining';
+  document.getElementById('daylight-bar').style.width=`${Math.min(100,elapsed/120000*100)}%`;
+  if (left===0) nextDay();
+}
+function persistState(json) { try { localStorage.setItem(SAVE_KEY,json); } catch (_) {} }
+function loadSavedState() { try { return localStorage.getItem(SAVE_KEY) || localStorage.getItem('gardenSanctuaryGame_v1') || ''; } catch (_) { return ''; } }
+function callShowNote(message) { showToast(String(message)); }
+async function startEngine(code) {
+  const status=document.getElementById('notebook-status');
+  status.textContent='Starting Python…';
+  const py=await loadPyodide();
+  py.globals.set('renderState',renderState);
+  py.globals.set('persistState',persistState);
+  py.globals.set('loadSavedState',loadSavedState);
+  py.globals.set('showNote',callShowNote);
+  await py.runPythonAsync(code);
+  pyodideInstance=py;
+  gameReady=true;
+  dayStartedAt=Date.now();
+  document.getElementById('engine-status').textContent='Python engine: running';
+  status.textContent='Engine is running. Running edited code restarts the farm and replaces the current save.';
+  document.getElementById('boot-overlay').style.display='none';
+  setTool(activeTool);
+  if(window.lucide) lucide.createIcons();
+}
+async function resetPythonEngine() {
+  if (!confirm('Restart the Python engine and begin a fresh garden? This replaces the saved farm on this device.')) return;
+  localStorage.removeItem(SAVE_KEY);
+  gameReady=false; dayStartedAt=Date.now();
+  try {
+    const source = document.getElementById('python-editor').value;
+    if (pyodideInstance) {
+      document.getElementById('notebook-status').textContent='Running your Python engine…';
+      await pyodideInstance.runPythonAsync(source);
+      gameReady=true;
+      dayStartedAt=Date.now();
+      setTool(activeTool);
+      document.getElementById('notebook-status').textContent='Your Python engine is running. The garden starts fresh with this version.';
+    } else {
+      await startEngine(source);
+    }
+  } catch (error) {
+    document.getElementById('notebook-status').textContent='Engine error: '+error.message;
+    showToast('Python engine could not restart.');
+  }
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  if(window.lucide) lucide.createIcons();
+  const source=document.getElementById('python-game').textContent.trim();
+  document.getElementById('python-editor').value=source;
+  document.getElementById('boot-status').textContent='Loading Python and planting the first seeds…';
+  startEngine(source).catch(error=>{
+    document.getElementById('boot-status').textContent='Could not load the garden engine: '+error.message+'. Check your internet connection and reload.';
+    document.getElementById('engine-status').textContent='Python engine: offline';
+  });
+  setInterval(updateTimer,250);
+});
+</script>
+</body>
+</html>
