@@ -627,7 +627,7 @@ class GardenWorld:
                 if not isinstance(item, dict): continue
                 crop_name = LEGACY_CROPS.get(item.get("crop"), item.get("crop"))
                 self.grid.cells[row][col] = FarmCell(crop_name, item.get("growth", 0), item.get("watered", False),
-                                                     item.get("pest", False), item.get("health", 100), item.get("water_need"))
+                                                    item.get("pest", False), item.get("health", 100), item.get("water_need"))
         self.climate = ClimateQueue(data.get("climate", ["Rain", "Cloudy", "Sunny", "Breezy"]))
         self.weather = data.get("weather", "Sunny")
         self.day, self.level, self.xp = data.get("day", 1), data.get("level", 1), data.get("xp", 0)
