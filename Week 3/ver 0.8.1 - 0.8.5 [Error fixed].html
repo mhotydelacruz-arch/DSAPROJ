@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Garden Sanctuary</title>
+<title>Garden Sanctuary v1.5 — Expanded Crop List</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@0.460.0/dist/umd/lucide.min.js"></script>
 <script src="https://cdn.jsdelivr.net/pyodide/v0.26.1/full/pyodide.js"></script>
@@ -32,21 +32,21 @@
 <div id="boot-overlay"><div class="glass-panel loader-card"><div class="text-5xl mb-4">🌱</div><h1 class="pixel-font text-amber-200 text-xs leading-7">GARDEN SANCTUARY</h1><p id="boot-status" class="text-emerald-200 mt-5">Waking up the garden…</p><div class="progress-track mt-5"><div class="progress-fill" style="width:30%"></div></div><p class="text-xs text-emerald-100/60 mt-4">The Python garden engine is loading in your browser.</p></div></div>
 <div class="max-w-[1500px] mx-auto">
 <header class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 mb-4 pb-3 border-b border-emerald-100/15">
-<div><div class="flex items-center gap-3"><span class="text-3xl">🌾</span><h1 class="pixel-font text-amber-200 text-sm md:text-base drop-shadow-[2px_2px_0_rgba(0,0,0,.6)]">Garden Sanctuary · Farm Update</h1></div><p class="text-emerald-200/80 text-lg ml-11">Grow crops, raise fish and poultry, and share the harvest with the village.</p></div>
-<div class="flex flex-wrap items-center gap-2 top-stats">
+  <div><div class="flex items-center gap-3"><span class="text-3xl">🌾</span><h1 class="pixel-font text-amber-200 text-sm md:text-base drop-shadow-[2px_2px_0_rgba(0,0,0,.6)]">Garden Sanctuary · Farm Update</h1></div><p class="text-emerald-200/80 text-lg ml-11">Grow crops, raise fish and poultry, and share the harvest with the village.</p></div>
+  <div class="flex flex-wrap items-center gap-2 top-stats">
     <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">DAY</span><div id="day-counter" class="pixel-font text-sm text-white mt-1">01</div></div>
     <div class="glass-panel top-stat px-4 py-2 text-right"><span class="pixel-font text-[8px] text-amber-300">LEVEL</span><div id="level-counter" class="pixel-font text-sm text-emerald-300 mt-1">1</div></div>
     <div class="glass-panel top-stat px-4 py-2 min-w-40"><div class="flex justify-between gap-4 text-sm"><span class="text-amber-200">GROWING TO LEVEL <b id="next-level">2</b></span><span id="xp-counter">0 / 30 XP</span></div><div class="progress-track mt-1"><div id="xp-bar" class="progress-fill" style="width:0%"></div></div></div>
     <button id="next-day-button" onclick="nextDay()" class="pixel-btn rounded-lg bg-emerald-800 px-4 py-3 text-emerald-50"><span class="text-xl">☀</span> Next day <span id="day-timer" class="text-amber-200">02:00</span></button>
-</div>
+  </div>
 </header>
 <nav class="flex flex-wrap gap-2 mb-4"><button id="tab-farm" onclick="switchTab('farm')" class="pixel-btn tab-button active pixel-font text-[9px] px-4 py-3 rounded-lg bg-amber-800 text-amber-50">🏡 The Farm</button><button id="tab-animals" onclick="switchTab('animals')" class="pixel-btn tab-button pixel-font text-[9px] px-4 py-3 rounded-lg bg-[#33452e] text-emerald-200">🐟 Ponds & Coops</button><button id="tab-notebook" onclick="switchTab('notebook')" class="pixel-btn tab-button pixel-font text-[9px] px-4 py-3 rounded-lg bg-[#33452e] text-emerald-200">📜 Field Notebook</button><span id="engine-status" class="ml-auto text-emerald-200/70 self-center text-sm">Python engine: starting</span></nav>
 <div id="pane-farm" class="tab-pane active">
 <main class="game-layout grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
-<aside class="storage-area lg:col-span-3 flex flex-col gap-4">
+  <aside class="storage-area lg:col-span-3 flex flex-col gap-4">
     <section class="glass-panel p-4">
-    <h2 class="pixel-font text-[10px] text-amber-200 border-b-2 border-amber-800/60 pb-3 mb-4 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-400"></i> The Granary</h2>
-    <div class="space-y-4">
+      <h2 class="pixel-font text-[10px] text-amber-200 border-b-2 border-amber-800/60 pb-3 mb-4 flex items-center gap-2"><i data-lucide="warehouse" class="w-4 h-4 text-amber-400"></i> The Granary</h2>
+      <div class="space-y-4">
         <div><div class="resource-row text-sm mb-1"><span class="text-blue-200">💧 Water</span><span id="water-label">200 / 200</span></div><div class="progress-track"><div id="water-bar" class="h-full bg-gradient-to-r from-blue-500 to-cyan-300" style="width:45%"></div></div></div>
         <div><div class="resource-row text-sm mb-1"><span class="text-lime-200">🌰 Seeds</span><span id="seeds-label">90 / 100</span></div><div class="progress-track"><div id="seeds-bar" class="h-full bg-gradient-to-r from-emerald-500 to-lime-300" style="width:90%"></div></div></div>
         <div><div class="resource-row text-sm mb-1"><span class="text-amber-200">⚡ Energy</span><span id="energy-label">110 / 110</span></div><div class="progress-track"><div id="energy-bar" class="h-full bg-gradient-to-r from-yellow-500 to-amber-300" style="width:100%"></div></div></div>
@@ -55,34 +55,34 @@
         <div><div class="resource-row text-sm mb-1"><span class="text-rose-200">🧴 Bug spray</span><span id="spray-label">3</span></div><div class="progress-track"><div id="spray-bar" class="h-full bg-gradient-to-r from-rose-500 to-pink-300" style="width:60%"></div></div></div>
         <div><div class="resource-row text-sm mb-1"><span class="text-orange-200">🌾 Animal feed</span><span id="feed-label">8</span></div><div class="progress-track"><div id="feed-bar" class="h-full bg-gradient-to-r from-orange-500 to-amber-300" style="width:70%"></div></div></div>
         <div><div class="resource-row text-sm mb-1"><span class="text-pink-200">💉 Vaccine</span><span id="vaccine-label">4</span></div><div class="progress-track"><div id="vaccine-bar" class="h-full bg-gradient-to-r from-pink-500 to-rose-300" style="width:80%"></div></div></div>
-    </div>
-    <div class="mt-5 pt-3 border-t border-amber-800/60"><h3 class="pixel-font text-[8px] text-amber-200 mb-3">HARVEST BASKET</h3><div id="produce-list" class="grid grid-cols-2 gap-2 text-sm"></div></div>
+      </div>
+      <div class="mt-5 pt-3 border-t border-amber-800/60"><h3 class="pixel-font text-[8px] text-amber-200 mb-3">HARVEST BASKET</h3><div id="produce-list" class="grid grid-cols-2 gap-2 text-sm"></div></div>
     </section>
     <section class="glass-panel p-4">
-    <h3 class="pixel-font text-[9px] text-amber-300 mb-3 flex items-center gap-2">🛒 Village Market</h3>
-    <div class="grid grid-cols-1 gap-2"><button onclick="buySupply('seeds')" class="pixel-btn rounded-lg bg-[#6b5228] px-3 py-2 text-left text-amber-50 text-sm">🌰 10 seeds <span class="float-right text-amber-200">35 coins</span></button><button onclick="buySupply('water')" class="pixel-btn rounded-lg bg-[#345766] px-3 py-2 text-left text-blue-50 text-sm">💧 30 water <span class="float-right text-blue-200">20 coins</span></button><button onclick="buySupply('spray')" class="pixel-btn rounded-lg bg-[#68413e] px-3 py-2 text-left text-rose-50 text-sm">🧴 2 bug spray <span class="float-right text-rose-200">18 coins</span></button><button onclick="buySupply('feed')" class="pixel-btn rounded-lg bg-[#73512a] px-3 py-2 text-left text-orange-50 text-sm">🌾 6 animal feed <span class="float-right text-orange-200">16 coins</span></button><button onclick="buySupply('vaccine')" class="pixel-btn rounded-lg bg-[#68424f] px-3 py-2 text-left text-pink-50 text-sm">💉 3 vaccine doses <span class="float-right text-pink-200">21 coins</span></button></div>
-    <p class="text-emerald-100/60 text-xs mt-3">Seed costs follow the plant dropdown. Water, energy, hope, and coins update as you tend the farm.</p>
+      <h3 class="pixel-font text-[9px] text-amber-300 mb-3 flex items-center gap-2">🛒 Village Market</h3>
+      <div class="grid grid-cols-1 gap-2"><button onclick="buySupply('seeds')" class="pixel-btn rounded-lg bg-[#6b5228] px-3 py-2 text-left text-amber-50 text-sm">🌰 10 seeds <span class="float-right text-amber-200">35 coins</span></button><button onclick="buySupply('water')" class="pixel-btn rounded-lg bg-[#345766] px-3 py-2 text-left text-blue-50 text-sm">💧 30 water <span class="float-right text-blue-200">20 coins</span></button><button onclick="buySupply('spray')" class="pixel-btn rounded-lg bg-[#68413e] px-3 py-2 text-left text-rose-50 text-sm">🧴 2 bug spray <span class="float-right text-rose-200">18 coins</span></button><button onclick="buySupply('feed')" class="pixel-btn rounded-lg bg-[#73512a] px-3 py-2 text-left text-orange-50 text-sm">🌾 6 animal feed <span class="float-right text-orange-200">16 coins</span></button><button onclick="buySupply('vaccine')" class="pixel-btn rounded-lg bg-[#68424f] px-3 py-2 text-left text-pink-50 text-sm">💉 3 vaccine doses <span class="float-right text-pink-200">21 coins</span></button></div>
+      <p class="text-emerald-100/60 text-xs mt-3">Seed costs follow the plant dropdown. Water, energy, hope, and coins update as you tend the farm.</p>
     </section>
-</aside>
-<section class="farm-area lg:col-span-6 flex flex-col gap-4">
+  </aside>
+  <section class="farm-area lg:col-span-6 flex flex-col gap-4">
     <div class="glass-panel farm-shell p-5 md:p-6">
-    <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-4">
+      <div class="flex flex-col xl:flex-row xl:items-center justify-between gap-3 mb-4">
         <div><h2 class="pixel-font text-amber-200 text-[10px]">Your Patch</h2><p id="farm-subtitle" class="text-emerald-200 text-lg mt-1">The soil is ready for your first seed.</p></div>
         <div class="flex flex-wrap items-center gap-2"><label for="crop-picker" class="text-emerald-200">Plant:</label><select id="crop-picker" class="parchment px-2 py-1 text-base font-semibold max-w-48" onchange="setCrop(this.value)"></select></div>
-    </div>
-    <div id="garden-grid" class="farm-grid grid grid-cols-5 gap-2 p-3 rounded-xl bg-[#26351e] border-2 border-[#172111]"></div>
-    <div class="mt-4 flex flex-col gap-2"><div class="flex items-center justify-between text-sm"><span class="text-emerald-200">Daylight until tomorrow</span><span id="daylight-caption">02:00 remaining</span></div><div class="progress-track h-3"><div id="daylight-bar" class="progress-fill bg-gradient-to-r from-amber-400 to-orange-300" style="width:0%"></div></div></div>
+      </div>
+      <div id="garden-grid" class="farm-grid grid grid-cols-5 gap-2 p-3 rounded-xl bg-[#26351e] border-2 border-[#172111]"></div>
+      <div class="mt-4 flex flex-col gap-2"><div class="flex items-center justify-between text-sm"><span class="text-emerald-200">Daylight until tomorrow</span><span id="daylight-caption">02:00 remaining</span></div><div class="progress-track h-3"><div id="daylight-bar" class="progress-fill bg-gradient-to-r from-amber-400 to-orange-300" style="width:0%"></div></div></div>
     </div>
     <section class="glass-panel p-4">
-    <div class="flex flex-wrap items-center justify-between gap-3 mb-3"><h3 class="pixel-font text-amber-200 text-[9px]">Choose your chore</h3><span class="text-emerald-100/60 text-sm">Plant · tend · harvest</span></div>
-    <div class="tool-row grid grid-cols-3 sm:grid-cols-6 gap-2">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3"><h3 class="pixel-font text-amber-200 text-[9px]">Choose your chore</h3><span class="text-emerald-100/60 text-sm">Plant · tend · harvest</span></div>
+      <div class="tool-row grid grid-cols-3 sm:grid-cols-6 gap-2">
         <button data-tool="Plant" onclick="setTool('Plant')" class="pixel-btn tool-button rounded-lg bg-amber-700 py-2 text-amber-50">🌱<br>Plant</button>
         <button data-tool="Water" onclick="setTool('Water')" class="pixel-btn tool-button rounded-lg bg-blue-800 py-2 text-blue-50">💧<br>Water</button>
         <button data-tool="Harvest" onclick="setTool('Harvest')" class="pixel-btn tool-button rounded-lg bg-emerald-800 py-2 text-emerald-50">🧺<br>Harvest</button>
         <button data-tool="Scan" onclick="setTool('Scan')" class="pixel-btn tool-button rounded-lg bg-violet-900 py-2 text-violet-50">🔎<br>Bug scan</button>
         <button data-tool="Clean" onclick="setTool('Clean')" class="pixel-btn tool-button rounded-lg bg-rose-900 py-2 text-rose-50">🧹<br>Clean</button>
         <button id="undo-button" aria-label="Undo last garden action" onclick="undoAction()" class="pixel-btn rounded-lg bg-[#3a2d1e] py-2 text-amber-100">↶<br>Undo</button>
-    </div>
+      </div>
     </section>
     <section class="glass-panel p-4"><h3 class="pixel-font text-amber-300 text-[9px] mb-2">A NOTE FROM THE FARM</h3><p id="farm-message" class="text-emerald-100">Loading your garden journal…</p></section>
   </section>
@@ -159,7 +159,7 @@ CROP_BOOK = {
     "Banana": {"emoji": "🍌", "seed_cost": 10, "water_need": 10, "days": 2, "yield": 4, "sell": 20, "unlock": 1},
     "Melon": {"emoji": "🍈", "seed_cost": 30, "water_need": 18, "days": 3, "yield": 2, "sell": 52, "unlock": 1},
     "Pineapple": {"emoji": "🍍", "seed_cost": 70, "water_need": 24, "days": 4, "yield": 2, "sell": 108, "unlock": 1},
-    # Compatibility entries let older saved beds/orders finish safely; these are not shown in the new seed dropdown.
+    # Additional selectable crops requested for the updated farm.
     "Carrot": {"emoji": "🥕", "seed_cost": 7, "water_need": 10, "days": 2, "yield": 3, "sell": 12, "unlock": 1},
     "Berry": {"emoji": "🍓", "seed_cost": 10, "water_need": 12, "days": 2, "yield": 3, "sell": 17, "unlock": 1},
     "Sunflower": {"emoji": "🌻", "seed_cost": 12, "water_need": 14, "days": 3, "yield": 2, "sell": 24, "unlock": 1},
@@ -171,8 +171,13 @@ PLANT_DROPDOWN = [
     ("Banana", "🍌", 10),
     ("Melon", "🍈", 30),
     ("Pineapple", "🍍", 70),
+    ("Carrot", "🥕", 7),
+    ("Berry", "🍓", 10),
+    ("Sunflower", "🌻", 12),
+    ("Pumpkin", "🎃", 16),
 ]
-LEGACY_CROPS = {"Turnip": "Banana", "Carrot": "Eggplant", "Berry": "Apples", "Sunflower": "Melon", "Pumpkin": "Pineapple"}
+# Only Turnip is retired. The four returning crops now keep their own saved identities.
+LEGACY_CROPS = {"Turnip": "Banana"}
 PRODUCT_BOOK = {"Fish": {"emoji": "🐟", "sell": 28}, "Eggs": {"emoji": "🥚", "sell": 9}, "Poultry": {"emoji": "🍗", "sell": 36}}
 
 def addPlantsToDropdown(items):
@@ -367,8 +372,8 @@ class BSTAnimal:
     @classmethod
     def from_data(cls, data):
         return cls(data["animal_id"], data["species"], data["age_days"],
-                data.get("health", 80), data.get("fed", False),
-                data.get("vaccinated", False))
+                   data.get("health", 80), data.get("fed", False),
+                   data.get("vaccinated", False))
 
 # DATA STRUCTURE: binary-tree node with left/right child links and cached subtree height.
 class AVLNode:
@@ -627,7 +632,7 @@ class GardenWorld:
                 if not isinstance(item, dict): continue
                 crop_name = LEGACY_CROPS.get(item.get("crop"), item.get("crop"))
                 self.grid.cells[row][col] = FarmCell(crop_name, item.get("growth", 0), item.get("watered", False),
-                                                    item.get("pest", False), item.get("health", 100), item.get("water_need"))
+                                                     item.get("pest", False), item.get("health", 100), item.get("water_need"))
         self.climate = ClimateQueue(data.get("climate", ["Rain", "Cloudy", "Sunny", "Breezy"]))
         self.weather = data.get("weather", "Sunny")
         self.day, self.level, self.xp = data.get("day", 1), data.get("level", 1), data.get("xp", 0)
@@ -809,7 +814,7 @@ class GardenWorld:
 
     def buy_supply(self, item):
         offers = {"seeds": ("Seeds", 10, 35), "water": ("Water", 30, 20), "spray": ("Spray", 2, 18),
-                "feed": ("Feed", 6, 16), "vaccine": ("Vaccine", 3, 21)}
+                  "feed": ("Feed", 6, 16), "vaccine": ("Vaccine", 3, 21)}
         if item not in offers: return
         name, quantity, cost = offers[item]
         if name == "Water": quantity = min(quantity, 200 - self.bag.amount("Water"))
@@ -999,7 +1004,7 @@ print("Congratulations!, you created a plant!")
 print("Resource Storage and Plant Dropdown is Unlocked!")
 </script>
 <script>
-const SAVE_KEY = 'gardenSanctuaryGame_v12';
+const SAVE_KEY = 'gardenSanctuaryGame_v15';
 let pyodideInstance = null;
 let activeTool = 'Plant';
 let selectedCrop = 'Eggplant';
@@ -1098,7 +1103,7 @@ function renderState(json) {
 function renderProduce(resources) {
   const container = document.getElementById('produce-list');
   container.replaceChildren();
-  const crops = [{name:'Eggplant',emoji:'🍆'},{name:'Apples',emoji:'🍎'},{name:'Banana',emoji:'🍌'},{name:'Melon',emoji:'🍈'},{name:'Pineapple',emoji:'🍍'},{name:'Fish',emoji:'🐟'},{name:'Eggs',emoji:'🥚'},{name:'Poultry',emoji:'🍗'}];
+  const crops = [{name:'Eggplant',emoji:'🍆'},{name:'Apples',emoji:'🍎'},{name:'Banana',emoji:'🍌'},{name:'Melon',emoji:'🍈'},{name:'Pineapple',emoji:'🍍'},{name:'Carrot',emoji:'🥕'},{name:'Berry',emoji:'🍓'},{name:'Sunflower',emoji:'🌻'},{name:'Pumpkin',emoji:'🎃'},{name:'Fish',emoji:'🐟'},{name:'Eggs',emoji:'🥚'},{name:'Poultry',emoji:'🍗'}];
   crops.forEach(crop => {
     const card = document.createElement('div');
     card.className = 'parchment px-2 py-1 flex justify-between rounded text-sm';
@@ -1264,7 +1269,7 @@ function updateTimer() {
   if (left===0) nextDay();
 }
 function persistState(json) { try { localStorage.setItem(SAVE_KEY,json); } catch (_) {} }
-function loadSavedState() { try { return localStorage.getItem(SAVE_KEY) || localStorage.getItem('gardenSanctuaryGame_v1') || ''; } catch (_) { return ''; } }
+function loadSavedState() { try { return localStorage.getItem(SAVE_KEY) || localStorage.getItem('gardenSanctuaryGame_v12') || localStorage.getItem('gardenSanctuaryGame_v1') || ''; } catch (_) { return ''; } }
 function callShowNote(message) { showToast(String(message)); }
 async function startEngine(code) {
   const status=document.getElementById('notebook-status');
