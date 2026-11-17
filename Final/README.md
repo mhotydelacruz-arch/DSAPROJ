@@ -15,13 +15,13 @@ A Simutaion Game that player can Farm and Sell Crops to village, this project wa
 - to gain insight you need to do Farming
 - you can sell the crops and poultry on the Village Orders section to gain coins
 
-#Additonal Topics:
+# Additonal Topics:
 - Graphs, Adjacency Lists/ Matrices, DFS/BFS
 - Linear vs. Binary Search
 - Djikstra's Algorithm and Greedy Patterns
 - Dp Memoization, Divide and Conquer
 
-#AI Tool that used in this Project
+# AI Tool that used in this Project
 - Claude AI
 - Manus AI
 
